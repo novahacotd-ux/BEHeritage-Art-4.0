@@ -2,6 +2,8 @@ const { sequelize } = require('../../config/db');
 const User = require('./User');
 const Role = require('./Role');
 const UserRole = require('./UserRole');
+const News = require('./News');
+const NewsImage = require('./NewsImage');
 
 // Define Many-to-Many associations through UserRole
 User.belongsToMany(Role, {
@@ -39,10 +41,23 @@ UserRole.belongsTo(Role, {
   as: 'role'
 });
 
+// News and NewsImage associations
+News.hasMany(NewsImage, {
+  foreignKey: 'news_id',
+  as: 'images'
+});
+
+NewsImage.belongsTo(News, {
+  foreignKey: 'news_id',
+  as: 'news'
+});
+
 // Export models and sequelize instance
 module.exports = {
   sequelize,
   User,
   Role,
-  UserRole
+  UserRole,
+  News,
+  NewsImage
 };

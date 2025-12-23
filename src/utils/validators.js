@@ -127,11 +127,67 @@ const roleValidation = [
     .isIn(['Active', 'Inactive']).withMessage('Status must be Active or Inactive')
 ];
 
+// News validation rules
+const createNewsValidation = [
+  body('content')
+    .trim()
+    .notEmpty().withMessage('Content is required')
+    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+
+  body('tag')
+    .optional()
+    .trim()
+    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+
+  body('thumbnail_url')
+    .optional()
+    .trim()
+    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+
+  body('status')
+    .optional()
+    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
+    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+];
+
+const updateNewsValidation = [
+  body('content')
+    .optional()
+    .trim()
+    .notEmpty().withMessage('Content cannot be empty')
+    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+
+  body('tag')
+    .optional()
+    .trim()
+    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+
+  body('thumbnail_url')
+    .optional()
+    .trim()
+    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+
+  body('status')
+    .optional()
+    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
+    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+];
+
+const updateNewsStatusValidation = [
+  body('status')
+    .notEmpty().withMessage('Status is required')
+    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
+    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
   updateUserValidation,
   createUserValidation,
   assignRolesValidation,
-  roleValidation
+  roleValidation,
+  createNewsValidation,
+  updateNewsValidation,
+  updateNewsStatusValidation
 };

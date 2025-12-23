@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const { testConnection } = require('../config/db');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
@@ -20,6 +22,18 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Heritage Art API Docs',
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'none',
+    filter: true,
+    tryItOutEnabled: true
+  }
+}));
 
 // API Routes
 app.use('/api', routes);
@@ -48,9 +62,10 @@ const startServer = async () => {
       console.log(`
 🚀 Server is running on port ${PORT}
 📝 Environment: ${process.env.NODE_ENV || 'development'}
+📚 API Documentation: http://localhost:${PORT}/api-docs
+🔑 Authorize with JWT token in Swagger UI
 🔗 API URL: http://localhost:${PORT}/api
-🏥 Health check: http://localhost:${PORT}/api/health
-      `);
+🏥 Health check: http://localhost:${PORT}/api/health`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
