@@ -180,6 +180,70 @@ const updateNewsStatusValidation = [
     .withMessage('Status must be Draft, Published, Archived, or Deleted')
 ];
 
+// AnalyzeView validation rules
+const createAnalyzeViewValidation = [
+  body('summary')
+    .trim()
+    .notEmpty().withMessage('Summary is required')
+    .isLength({ min: 10, max: 500 }).withMessage('Summary must be between 10 and 500 characters'),
+
+  body('content')
+    .trim()
+    .notEmpty().withMessage('Content is required')
+    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+
+  body('tag')
+    .optional()
+    .trim()
+    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+
+  body('thumbnail_url')
+    .optional()
+    .trim()
+    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+
+  body('status')
+    .optional()
+    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
+    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+];
+
+const updateAnalyzeViewValidation = [
+  body('summary')
+    .optional()
+    .trim()
+    .notEmpty().withMessage('Summary cannot be empty')
+    .isLength({ min: 10, max: 500 }).withMessage('Summary must be between 10 and 500 characters'),
+
+  body('content')
+    .optional()
+    .trim()
+    .notEmpty().withMessage('Content cannot be empty')
+    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+
+  body('tag')
+    .optional()
+    .trim()
+    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+
+  body('thumbnail_url')
+    .optional()
+    .trim()
+    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+
+  body('status')
+    .optional()
+    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
+    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+];
+
+const updateAnalyzeViewStatusValidation = [
+  body('status')
+    .notEmpty().withMessage('Status is required')
+    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
+    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
@@ -189,5 +253,8 @@ module.exports = {
   roleValidation,
   createNewsValidation,
   updateNewsValidation,
-  updateNewsStatusValidation
+  updateNewsStatusValidation,
+  createAnalyzeViewValidation,
+  updateAnalyzeViewValidation,
+  updateAnalyzeViewStatusValidation
 };

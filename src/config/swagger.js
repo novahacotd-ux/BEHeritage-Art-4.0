@@ -92,6 +92,31 @@ const options = {
             image_url: { type: 'string', format: 'uri' },
             created_date: { type: 'string', format: 'date-time' }
           }
+        },
+        AnalyzeView: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            summary: { type: 'string', maxLength: 500 },
+            content: { type: 'string' },
+            status: { type: 'string', enum: ['Draft', 'Published', 'Archived', 'Deleted'] },
+            tag: { type: 'string' },
+            thumbnail_url: { type: 'string', format: 'uri' },
+            created_date: { type: 'string', format: 'date-time' },
+            images: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/AnalyzeViewImage' }
+            }
+          }
+        },
+        AnalyzeViewImage: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            analyze_view_id: { type: 'string', format: 'uuid' },
+            image_url: { type: 'string', format: 'uri' },
+            created_date: { type: 'string', format: 'date-time' }
+          }
         }
       }
     },

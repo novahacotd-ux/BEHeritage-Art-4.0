@@ -3,6 +3,7 @@ const authRoutes = require('./authRoutes');
 const userRoutes = require('./userRoutes');
 const roleRoutes = require('./roleRoutes');
 const newsRoutes = require('./newsRoutes');
+const analyzeViewRoutes = require('./analyzeViewRoutes');
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/news', newsRoutes);
+router.use('/analyze-views', analyzeViewRoutes);
 
 module.exports = router;

@@ -4,6 +4,8 @@ const Role = require('./Role');
 const UserRole = require('./UserRole');
 const News = require('./News');
 const NewsImage = require('./NewsImage');
+const AnalyzeView = require('./AnalyzeView');
+const AnalyzeViewImage = require('./AnalyzeViewImage');
 
 // Define Many-to-Many associations through UserRole
 User.belongsToMany(Role, {
@@ -52,6 +54,17 @@ NewsImage.belongsTo(News, {
   as: 'news'
 });
 
+// AnalyzeView and AnalyzeViewImage associations
+AnalyzeView.hasMany(AnalyzeViewImage, {
+  foreignKey: 'analyze_view_id',
+  as: 'images'
+});
+
+AnalyzeViewImage.belongsTo(AnalyzeView, {
+  foreignKey: 'analyze_view_id',
+  as: 'analyzeView'
+});
+
 // Export models and sequelize instance
 module.exports = {
   sequelize,
@@ -59,5 +72,7 @@ module.exports = {
   Role,
   UserRole,
   News,
-  NewsImage
+  NewsImage,
+  AnalyzeView,
+  AnalyzeViewImage
 };
