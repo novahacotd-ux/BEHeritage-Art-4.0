@@ -1,11 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const newsController = require('../controllers/newsController');
-const authenticate = require('../middleware/authenticate');
-const { authorize } = require('../middleware/authorize');
-const upload = require('../middleware/upload');
-const validate = require('../middleware/validate');
-const { createNewsValidation, updateNewsValidation, updateNewsStatusValidation } = require('../utils/validators');
+const newsController = require("../controllers/newsController");
+const authenticate = require("../middleware/authenticate");
+const authorize = require("../middleware/authorize");
+const upload = require("../middleware/upload");
+const validate = require("../middleware/validate");
+const {
+  createNewsValidation,
+  updateNewsValidation,
+  updateNewsStatusValidation,
+} = require("../utils/validators");
 
 /**
  * @swagger
@@ -93,8 +97,8 @@ const { createNewsValidation, updateNewsValidation, updateNewsStatusValidation }
  */
 
 // Public routes - Anyone can view news
-router.get('/', newsController.getAllNews);
-router.get('/:id', newsController.getNewsById);
+router.get("/", newsController.getAllNews);
+router.get("/:id", newsController.getNewsById);
 
 // Protected routes - Require authentication
 router.use(authenticate);
@@ -306,21 +310,48 @@ router.use(authenticate);
  */
 
 // Create news - Requires authentication
-router.post('/', createNewsValidation, validate, newsController.createNews);
+router.post(
+  "/",
+  authorize("ADMIN"),
+  createNewsValidation,
+  validate,
+  newsController.createNews
+);
 
 // Update news - Requires authentication
-router.put('/:id', updateNewsValidation, validate, newsController.updateNews);
+router.put(
+  "/:id",
+  authorize("ADMIN"),
+  updateNewsValidation,
+  validate,
+  newsController.updateNews
+);
 
 // Delete news (soft delete) - Requires authentication
-router.delete('/:id', newsController.deleteNews);
+router.delete("/:id", authorize("ADMIN"), newsController.deleteNews);
 
 // Update news status - Requires authentication
-router.patch('/:id/status', updateNewsStatusValidation, validate, newsController.updateNewsStatus);
+router.patch(
+  "/:id/status",
+  authorize("ADMIN"),
+  updateNewsStatusValidation,
+  validate,
+  newsController.updateNewsStatus
+);
 
 // Upload media (image/video) to news - Requires authentication
-router.post('/:newsId/media', upload.single('file'), newsController.uploadNewsMedia);
+router.post(
+  "/:newsId/media",
+  authorize("ADMIN"),
+  upload.single("file"),
+  newsController.uploadNewsMedia
+);
 
 // Delete news image - Requires authentication
-router.delete('/images/:imageId', newsController.deleteNewsImage);
+router.delete(
+  "/images/:imageId",
+  authorize("ADMIN"),
+  newsController.deleteNewsImage
+);
 
 module.exports = router;

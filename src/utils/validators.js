@@ -1,247 +1,399 @@
-const { body } = require('express-validator');
+const { body } = require("express-validator");
 
 const registerValidation = [
-  body('name')
+  body("name")
     .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 255 }).withMessage('Name must be between 2 and 255 characters'),
+    .notEmpty()
+    .withMessage("Name is required")
+    .isLength({ min: 2, max: 255 })
+    .withMessage("Name must be between 2 and 255 characters"),
 
-  body('email')
+  body("email")
     .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format')
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format")
     .normalizeEmail(),
 
-  body('password')
-    .notEmpty().withMessage('Password is required')
-    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters")
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage(
+      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+    ),
 
-  body('identity_number')
+  body("identity_number")
     .optional()
     .trim()
-    .isLength({ max: 50 }).withMessage('Identity number must not exceed 50 characters'),
+    .isLength({ max: 50 })
+    .withMessage("Identity number must not exceed 50 characters"),
 
-  body('date_of_birth')
+  body("date_of_birth")
     .optional()
-    .isISO8601().withMessage('Invalid date format (use YYYY-MM-DD)'),
+    .isISO8601()
+    .withMessage("Invalid date format (use YYYY-MM-DD)"),
 
-  body('gender')
+  body("gender")
     .optional()
-    .isIn(['Male', 'Female', 'Other']).withMessage('Gender must be Male, Female, or Other'),
+    .isIn(["Male", "Female", "Other"])
+    .withMessage("Gender must be Male, Female, or Other"),
 
-  body('intro')
+  body("intro")
     .optional()
     .trim()
-    .isLength({ max: 2000 }).withMessage('Intro must not exceed 2000 characters')
+    .isLength({ max: 2000 })
+    .withMessage("Intro must not exceed 2000 characters"),
 ];
 
 const loginValidation = [
-  body('email')
+  body("email")
     .trim()
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format'),
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format"),
 
-  body('password')
-    .notEmpty().withMessage('Password is required')
+  body("password").notEmpty().withMessage("Password is required"),
 ];
 
 const updateUserValidation = [
-  body('name')
+  body("name")
     .optional()
     .trim()
-    .isLength({ min: 2, max: 255 }).withMessage('Name must be between 2 and 255 characters'),
+    .isLength({ min: 2, max: 255 })
+    .withMessage("Name must be between 2 and 255 characters"),
 
-  body('email')
+  body("email")
     .optional()
     .trim()
-    .isEmail().withMessage('Invalid email format')
+    .isEmail()
+    .withMessage("Invalid email format")
     .normalizeEmail(),
 
-  body('identity_number')
+  body("identity_number")
     .optional()
     .trim()
-    .isLength({ max: 50 }).withMessage('Identity number must not exceed 50 characters'),
+    .isLength({ max: 50 })
+    .withMessage("Identity number must not exceed 50 characters"),
 
-  body('date_of_birth')
+  body("date_of_birth")
     .optional()
-    .isISO8601().withMessage('Invalid date format (use YYYY-MM-DD)'),
+    .isISO8601()
+    .withMessage("Invalid date format (use YYYY-MM-DD)"),
 
-  body('gender')
+  body("gender")
     .optional()
-    .isIn(['Male', 'Female', 'Other']).withMessage('Gender must be Male, Female, or Other'),
+    .isIn(["Male", "Female", "Other"])
+    .withMessage("Gender must be Male, Female, or Other"),
 
-  body('intro')
+  body("intro")
     .optional()
     .trim()
-    .isLength({ max: 2000 }).withMessage('Intro must not exceed 2000 characters'),
+    .isLength({ max: 2000 })
+    .withMessage("Intro must not exceed 2000 characters"),
 
-  body('status')
+  body("status")
     .optional()
-    .isIn(['Active', 'Inactive', 'Suspended']).withMessage('Status must be Active, Inactive, or Suspended')
+    .isIn(["Active", "Inactive", "Suspended"])
+    .withMessage("Status must be Active, Inactive, or Suspended"),
 ];
 
 const createUserValidation = [
   ...registerValidation,
-  body('role_ids')
-    .isArray({ min: 1 }).withMessage('At least one role must be assigned')
+  body("role_ids")
+    .isArray({ min: 1 })
+    .withMessage("At least one role must be assigned")
     .custom((value) => {
-      if (!value.every(id => Number.isInteger(id) && id > 0)) {
-        throw new Error('All role IDs must be positive integers');
+      if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+        throw new Error("All role IDs must be positive integers");
       }
       return true;
-    })
+    }),
 ];
 
 const assignRolesValidation = [
-  body('role_ids')
-    .isArray({ min: 1 }).withMessage('At least one role must be assigned')
+  body("role_ids")
+    .isArray({ min: 1 })
+    .withMessage("At least one role must be assigned")
     .custom((value) => {
-      if (!value.every(id => Number.isInteger(id) && id > 0)) {
-        throw new Error('All role IDs must be positive integers');
+      if (!value.every((id) => Number.isInteger(id) && id > 0)) {
+        throw new Error("All role IDs must be positive integers");
       }
       return true;
-    })
+    }),
 ];
 
 const roleValidation = [
-  body('role_name')
+  body("role_name")
     .trim()
-    .notEmpty().withMessage('Role name is required')
-    .isLength({ min: 2, max: 100 }).withMessage('Role name must be between 2 and 100 characters'),
+    .notEmpty()
+    .withMessage("Role name is required")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Role name must be between 2 and 100 characters"),
 
-  body('role_code')
+  body("role_code")
     .trim()
-    .notEmpty().withMessage('Role code is required')
-    .isUppercase().withMessage('Role code must be uppercase')
-    .isIn(['ADMIN', 'PREMIUM', 'ART_PATRON', 'TEACHER', 'STUDENT', 'USER'])
-    .withMessage('Invalid role code'),
+    .notEmpty()
+    .withMessage("Role code is required")
+    .isUppercase()
+    .withMessage("Role code must be uppercase")
+    .isIn(["ADMIN", "PREMIUM", "ART_PATRON", "TEACHER", "STUDENT", "USER"])
+    .withMessage("Invalid role code"),
 
-  body('role_description')
+  body("role_description")
     .optional()
     .trim()
-    .isLength({ max: 500 }).withMessage('Description must not exceed 500 characters'),
+    .isLength({ max: 500 })
+    .withMessage("Description must not exceed 500 characters"),
 
-  body('status')
+  body("status")
     .optional()
-    .isIn(['Active', 'Inactive']).withMessage('Status must be Active or Inactive')
+    .isIn(["Active", "Inactive"])
+    .withMessage("Status must be Active or Inactive"),
 ];
 
 // News validation rules
 const createNewsValidation = [
-  body('content')
+  body("content")
     .trim()
-    .notEmpty().withMessage('Content is required')
-    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+    .notEmpty()
+    .withMessage("Content is required")
+    .isLength({ min: 10 })
+    .withMessage("Content must be at least 10 characters"),
 
-  body('tag')
+  body("tag")
     .optional()
     .trim()
-    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
 
-  body('thumbnail_url')
+  body("thumbnail_url")
     .optional()
     .trim()
-    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+    .isURL()
+    .withMessage("Thumbnail URL must be a valid URL"),
 
-  body('status')
+  body("status")
     .optional()
-    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
-    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+    .isIn(["Draft", "Published", "Archived", "Deleted"])
+    .withMessage("Status must be Draft, Published, Archived, or Deleted"),
 ];
 
 const updateNewsValidation = [
-  body('content')
+  body("content")
     .optional()
     .trim()
-    .notEmpty().withMessage('Content cannot be empty')
-    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+    .notEmpty()
+    .withMessage("Content cannot be empty")
+    .isLength({ min: 10 })
+    .withMessage("Content must be at least 10 characters"),
 
-  body('tag')
+  body("tag")
     .optional()
     .trim()
-    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
 
-  body('thumbnail_url')
+  body("thumbnail_url")
     .optional()
     .trim()
-    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+    .isURL()
+    .withMessage("Thumbnail URL must be a valid URL"),
 
-  body('status')
+  body("status")
     .optional()
-    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
-    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+    .isIn(["Draft", "Published", "Archived", "Deleted"])
+    .withMessage("Status must be Draft, Published, Archived, or Deleted"),
 ];
 
 const updateNewsStatusValidation = [
-  body('status')
-    .notEmpty().withMessage('Status is required')
-    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
-    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+  body("status")
+    .notEmpty()
+    .withMessage("Status is required")
+    .isIn(["Draft", "Published", "Archived", "Deleted"])
+    .withMessage("Status must be Draft, Published, Archived, or Deleted"),
 ];
 
 // AnalyzeView validation rules
 const createAnalyzeViewValidation = [
-  body('summary')
+  body("summary")
     .trim()
-    .notEmpty().withMessage('Summary is required')
-    .isLength({ min: 10, max: 500 }).withMessage('Summary must be between 10 and 500 characters'),
+    .notEmpty()
+    .withMessage("Summary is required")
+    .isLength({ min: 10, max: 500 })
+    .withMessage("Summary must be between 10 and 500 characters"),
 
-  body('content')
+  body("content")
     .trim()
-    .notEmpty().withMessage('Content is required')
-    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+    .notEmpty()
+    .withMessage("Content is required")
+    .isLength({ min: 10 })
+    .withMessage("Content must be at least 10 characters"),
 
-  body('tag')
+  body("tag")
     .optional()
     .trim()
-    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
 
-  body('thumbnail_url')
+  body("thumbnail_url")
     .optional()
     .trim()
-    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+    .isURL()
+    .withMessage("Thumbnail URL must be a valid URL"),
 
-  body('status')
+  body("status")
     .optional()
-    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
-    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+    .isIn(["Draft", "Published", "Archived", "Deleted"])
+    .withMessage("Status must be Draft, Published, Archived, or Deleted"),
 ];
 
 const updateAnalyzeViewValidation = [
-  body('summary')
+  body("summary")
     .optional()
     .trim()
-    .notEmpty().withMessage('Summary cannot be empty')
-    .isLength({ min: 10, max: 500 }).withMessage('Summary must be between 10 and 500 characters'),
+    .notEmpty()
+    .withMessage("Summary cannot be empty")
+    .isLength({ min: 10, max: 500 })
+    .withMessage("Summary must be between 10 and 500 characters"),
 
-  body('content')
+  body("content")
     .optional()
     .trim()
-    .notEmpty().withMessage('Content cannot be empty')
-    .isLength({ min: 10 }).withMessage('Content must be at least 10 characters'),
+    .notEmpty()
+    .withMessage("Content cannot be empty")
+    .isLength({ min: 10 })
+    .withMessage("Content must be at least 10 characters"),
 
-  body('tag')
+  body("tag")
     .optional()
     .trim()
-    .isLength({ max: 255 }).withMessage('Tag must not exceed 255 characters'),
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
 
-  body('thumbnail_url')
+  body("thumbnail_url")
     .optional()
     .trim()
-    .isURL().withMessage('Thumbnail URL must be a valid URL'),
+    .isURL()
+    .withMessage("Thumbnail URL must be a valid URL"),
 
-  body('status')
+  body("status")
     .optional()
-    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
-    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+    .isIn(["Draft", "Published", "Archived", "Deleted"])
+    .withMessage("Status must be Draft, Published, Archived, or Deleted"),
 ];
 
 const updateAnalyzeViewStatusValidation = [
-  body('status')
-    .notEmpty().withMessage('Status is required')
-    .isIn(['Draft', 'Published', 'Archived', 'Deleted'])
-    .withMessage('Status must be Draft, Published, Archived, or Deleted')
+  body("status")
+    .notEmpty()
+    .withMessage("Status is required")
+    .isIn(["Draft", "Published", "Archived", "Deleted"])
+    .withMessage("Status must be Draft, Published, Archived, or Deleted"),
+];
+
+// Event validation rules
+const createEventValidation = [
+  body("title")
+    .trim()
+    .notEmpty()
+    .withMessage("Title is required")
+    .isLength({ max: 255 })
+    .withMessage("Title must not exceed 255 characters"),
+
+  body("content").optional().trim(),
+
+  body("duration")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Duration must not exceed 100 characters"),
+
+  body("location")
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage("Location must not exceed 255 characters"),
+
+  body("tag")
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
+
+  body("start_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Start date must be a valid date (YYYY-MM-DD)"),
+
+  body("end_date")
+    .optional()
+    .isISO8601()
+    .withMessage("End date must be a valid date (YYYY-MM-DD)")
+    .custom((value, { req }) => {
+      if (
+        value &&
+        req.body.start_date &&
+        new Date(value) < new Date(req.body.start_date)
+      ) {
+        throw new Error("End date must be after start date");
+      }
+      return true;
+    }),
+];
+
+const updateEventValidation = [
+  body("title")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Title cannot be empty")
+    .isLength({ max: 255 })
+    .withMessage("Title must not exceed 255 characters"),
+
+  body("content").optional().trim(),
+
+  body("duration")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Duration must not exceed 100 characters"),
+
+  body("location")
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage("Location must not exceed 255 characters"),
+
+  body("tag")
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
+
+  body("start_date")
+    .optional()
+    .isISO8601()
+    .withMessage("Start date must be a valid date (YYYY-MM-DD)"),
+
+  body("end_date")
+    .optional()
+    .isISO8601()
+    .withMessage("End date must be a valid date (YYYY-MM-DD)"),
+
+  body("status")
+    .optional()
+    .isIn(["Draft", "Published", "Cancelled", "Deleted"])
+    .withMessage("Status must be Draft, Published, Cancelled, or Deleted"),
+];
+
+const addEventFaqValidation = [
+  body("question").trim().notEmpty().withMessage("Question is required"),
+
+  body("answer").trim().notEmpty().withMessage("Answer is required"),
 ];
 
 module.exports = {
@@ -256,5 +408,8 @@ module.exports = {
   updateNewsStatusValidation,
   createAnalyzeViewValidation,
   updateAnalyzeViewValidation,
-  updateAnalyzeViewStatusValidation
+  updateAnalyzeViewStatusValidation,
+  createEventValidation,
+  updateEventValidation,
+  addEventFaqValidation,
 };

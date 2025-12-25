@@ -1,14 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const analyzeViewController = require('../controllers/analyzeViewController');
-const authenticate = require('../middleware/authenticate');
-const upload = require('../middleware/upload');
-const validate = require('../middleware/validate');
+const analyzeViewController = require("../controllers/analyzeViewController");
+const authenticate = require("../middleware/authenticate");
+const authorize = require("../middleware/authorize");
+const upload = require("../middleware/upload");
+const validate = require("../middleware/validate");
 const {
   createAnalyzeViewValidation,
   updateAnalyzeViewValidation,
-  updateAnalyzeViewStatusValidation
-} = require('../utils/validators');
+  updateAnalyzeViewStatusValidation,
+} = require("../utils/validators");
 
 /**
  * @swagger
@@ -88,8 +89,8 @@ const {
  */
 
 // Public routes - Anyone can view analyze views
-router.get('/', analyzeViewController.getAllAnalyzeViews);
-router.get('/:id', analyzeViewController.getAnalyzeViewById);
+router.get("/", analyzeViewController.getAllAnalyzeViews);
+router.get("/:id", analyzeViewController.getAnalyzeViewById);
 
 // Protected routes - Require authentication
 router.use(authenticate);
@@ -305,21 +306,52 @@ router.use(authenticate);
  */
 
 // Create analyze view - Requires authentication
-router.post('/', createAnalyzeViewValidation, validate, analyzeViewController.createAnalyzeView);
+router.post(
+  "/",
+  authorize("ADMIN"),
+  createAnalyzeViewValidation,
+  validate,
+  analyzeViewController.createAnalyzeView
+);
 
 // Update analyze view - Requires authentication
-router.put('/:id', updateAnalyzeViewValidation, validate, analyzeViewController.updateAnalyzeView);
+router.put(
+  "/:id",
+  authorize("ADMIN"),
+  updateAnalyzeViewValidation,
+  validate,
+  analyzeViewController.updateAnalyzeView
+);
 
 // Delete analyze view (soft delete) - Requires authentication
-router.delete('/:id', analyzeViewController.deleteAnalyzeView);
+router.delete(
+  "/:id",
+  authorize("ADMIN"),
+  analyzeViewController.deleteAnalyzeView
+);
 
 // Update analyze view status - Requires authentication
-router.patch('/:id/status', updateAnalyzeViewStatusValidation, validate, analyzeViewController.updateAnalyzeViewStatus);
+router.patch(
+  "/:id/status",
+  authorize("ADMIN"),
+  updateAnalyzeViewStatusValidation,
+  validate,
+  analyzeViewController.updateAnalyzeViewStatus
+);
 
 // Upload media (image/video) to analyze view - Requires authentication
-router.post('/:analyzeViewId/media', upload.single('file'), analyzeViewController.uploadAnalyzeViewMedia);
+router.post(
+  "/:analyzeViewId/media",
+  authorize("ADMIN"),
+  upload.single("file"),
+  analyzeViewController.uploadAnalyzeViewMedia
+);
 
 // Delete analyze view image - Requires authentication
-router.delete('/images/:imageId', analyzeViewController.deleteAnalyzeViewImage);
+router.delete(
+  "/images/:imageId",
+  authorize("ADMIN"),
+  analyzeViewController.deleteAnalyzeViewImage
+);
 
 module.exports = router;

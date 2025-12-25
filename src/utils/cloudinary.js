@@ -1,11 +1,11 @@
-const cloudinary = require('cloudinary').v2;
-const { Readable } = require('stream');
+const cloudinary = require("cloudinary").v2;
+const { Readable } = require("stream");
 
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 /**
@@ -18,15 +18,24 @@ const uploadToCloudinary = (file, options = {}) => {
   return new Promise((resolve, reject) => {
     // Default options
     const defaultOptions = {
-      folder: process.env.CLOUDINARY_FOLDER || 'heritage-art/news',
-      resource_type: 'auto', // Automatically detect image/video
-      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi'],
+      folder: process.env.CLOUDINARY_FOLDER,
+      resource_type: "auto", // Automatically detect image/video
+      allowed_formats: [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "mp4",
+        "mov",
+        "avi",
+      ],
       transformation: [
         {
-          quality: 'auto',
-          fetch_format: 'auto'
-        }
-      ]
+          quality: "auto",
+          fetch_format: "auto",
+        },
+      ],
     };
 
     const uploadOptions = { ...defaultOptions, ...options };
@@ -55,10 +64,10 @@ const uploadToCloudinary = (file, options = {}) => {
  * @param {String} resourceType - Type of resource ('image' or 'video')
  * @returns {Promise<Object>} - Cloudinary deletion result
  */
-const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
+const deleteFromCloudinary = async (publicId, resourceType = "image") => {
   try {
     const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: resourceType
+      resource_type: resourceType,
     });
     return result;
   } catch (error) {
@@ -80,5 +89,5 @@ module.exports = {
   cloudinary,
   uploadToCloudinary,
   deleteFromCloudinary,
-  getCloudinaryUrl
+  getCloudinaryUrl,
 };

@@ -1,68 +1,104 @@
-const { sequelize } = require('../../config/db');
-const User = require('./User');
-const Role = require('./Role');
-const UserRole = require('./UserRole');
-const News = require('./News');
-const NewsImage = require('./NewsImage');
-const AnalyzeView = require('./AnalyzeView');
-const AnalyzeViewImage = require('./AnalyzeViewImage');
+const { sequelize } = require("../../config/db");
+const User = require("./User");
+const Role = require("./Role");
+const UserRole = require("./UserRole");
+const News = require("./News");
+const NewsImage = require("./NewsImage");
+const AnalyzeView = require("./AnalyzeView");
+const AnalyzeViewImage = require("./AnalyzeViewImage");
+const Event = require("./Event");
+const EventFaq = require("./EventFaq");
+const EventRegister = require("./EventRegister");
 
 // Define Many-to-Many associations through UserRole
 User.belongsToMany(Role, {
   through: UserRole,
-  foreignKey: 'user_id',
-  otherKey: 'role_id',
-  as: 'roles'
+  foreignKey: "user_id",
+  otherKey: "role_id",
+  as: "roles",
 });
 
 Role.belongsToMany(User, {
   through: UserRole,
-  foreignKey: 'role_id',
-  otherKey: 'user_id',
-  as: 'users'
+  foreignKey: "role_id",
+  otherKey: "user_id",
+  as: "users",
 });
 
 // Direct associations for convenience
 User.hasMany(UserRole, {
-  foreignKey: 'user_id',
-  as: 'userRoles'
+  foreignKey: "user_id",
+  as: "userRoles",
 });
 
 Role.hasMany(UserRole, {
-  foreignKey: 'role_id',
-  as: 'userRoles'
+  foreignKey: "role_id",
+  as: "userRoles",
 });
 
 UserRole.belongsTo(User, {
-  foreignKey: 'user_id',
-  as: 'user'
+  foreignKey: "user_id",
+  as: "user",
 });
 
 UserRole.belongsTo(Role, {
-  foreignKey: 'role_id',
-  as: 'role'
+  foreignKey: "role_id",
+  as: "role",
 });
 
 // News and NewsImage associations
 News.hasMany(NewsImage, {
-  foreignKey: 'news_id',
-  as: 'images'
+  foreignKey: "news_id",
+  as: "images",
 });
 
 NewsImage.belongsTo(News, {
-  foreignKey: 'news_id',
-  as: 'news'
+  foreignKey: "news_id",
+  as: "news",
 });
 
 // AnalyzeView and AnalyzeViewImage associations
 AnalyzeView.hasMany(AnalyzeViewImage, {
-  foreignKey: 'analyze_view_id',
-  as: 'images'
+  foreignKey: "analyze_view_id",
+  as: "images",
 });
 
 AnalyzeViewImage.belongsTo(AnalyzeView, {
-  foreignKey: 'analyze_view_id',
-  as: 'analyzeView'
+  foreignKey: "analyze_view_id",
+  as: "analyzeView",
+});
+
+// Event and EventFaq associations
+Event.hasMany(EventFaq, {
+  foreignKey: "event_id",
+  as: "faqs",
+});
+
+EventFaq.belongsTo(Event, {
+  foreignKey: "event_id",
+  as: "event",
+});
+
+// Event and EventRegister associations
+Event.hasMany(EventRegister, {
+  foreignKey: "event_id",
+  as: "registers",
+});
+
+EventRegister.belongsTo(Event, {
+  foreignKey: "event_id",
+  as: "event",
+});
+
+// User and EventRegister associations
+User.hasMany(EventRegister, {
+  foreignKey: "user_id",
+  as: "eventRegisters",
+});
+
+EventRegister.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "user",
 });
 
 // Export models and sequelize instance
@@ -74,5 +110,8 @@ module.exports = {
   News,
   NewsImage,
   AnalyzeView,
-  AnalyzeViewImage
+  AnalyzeViewImage,
+  Event,
+  EventFaq,
+  EventRegister,
 };
