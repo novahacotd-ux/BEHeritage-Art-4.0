@@ -18,12 +18,24 @@ const errorHandler = (err, req, res, next) => {
 
   // Sequelize unique constraint error
   if (err.name === 'SequelizeUniqueConstraintError') {
+    // Get the field that caused the error
+    const field = err.errors[0]?.path;
+    const value = err.errors[0]?.value;
+
+    // Provide user-friendly messages
+    let message = 'Duplicate entry.';
+    if (field === 'name') {
+      message = `This name is already in use.`;
+    } else if (field && field.endsWith('_id')) {
+      message = `A record with this ID already exists. This might be a database sequence issue.`;
+    }
+
     return res.status(409).json({
       success: false,
-      message: 'Duplicate entry.',
+      message: message,
       errors: err.errors.map(e => ({
         field: e.path,
-        message: `${e.path} already exists.`
+        message: e.path === 'name' ? `The name "${value}" is already taken.` : `${e.path} already exists.`
       }))
     });
   }
