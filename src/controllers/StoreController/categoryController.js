@@ -45,6 +45,45 @@ const getAllCategories = async (req, res, next) => {
 };
 
 /**
+ * Get all categories for admin (shows both Active and Inactive)
+ */
+const getAllCategoriesAdmin = async (req, res, next) => {
+    try {
+        const { page = 1, limit = 100, search } = req.query;
+        const offset = (page - 1) * limit;
+
+        // Build where clause - no status filter for admin
+        const where = {};
+
+        if (search) {
+            where.name = { [Op.iLike]: `%${search}%` };
+        }
+
+        const { count, rows: categories } = await Category.findAndCountAll({
+            where,
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [['status', 'ASC'], ['created_at', 'DESC']]
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                categories,
+                pagination: {
+                    total: count,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(count / limit)
+                }
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * Get category by ID
  */
 const getCategoryById = async (req, res, next) => {
@@ -193,6 +232,7 @@ const deleteCategory = async (req, res, next) => {
 
 module.exports = {
     getAllCategories,
+    getAllCategoriesAdmin,
     getCategoryById,
     createCategory,
     updateCategory,

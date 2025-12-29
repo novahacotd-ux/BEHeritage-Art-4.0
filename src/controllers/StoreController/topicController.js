@@ -45,6 +45,45 @@ const getAllTopics = async (req, res, next) => {
 };
 
 /**
+ * Get all topics for admin (shows both Active and Inactive)
+ */
+const getAllTopicsAdmin = async (req, res, next) => {
+    try {
+        const { page = 1, limit = 100, search } = req.query;
+        const offset = (page - 1) * limit;
+
+        // Build where clause - no status filter for admin
+        const where = {};
+
+        if (search) {
+            where.name = { [Op.iLike]: `%${search}%` };
+        }
+
+        const { count, rows: topics } = await Topic.findAndCountAll({
+            where,
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [['status', 'ASC'], ['created_at', 'DESC']]
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                topics,
+                pagination: {
+                    total: count,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(count / limit)
+                }
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * Get topic by ID
  */
 const getTopicById = async (req, res, next) => {
@@ -193,6 +232,7 @@ const deleteTopic = async (req, res, next) => {
 
 module.exports = {
     getAllTopics,
+    getAllTopicsAdmin,
     getTopicById,
     createTopic,
     updateTopic,
