@@ -2,6 +2,9 @@ const express = require('express');
 const authRoutes = require('./authRoutes');
 const userRoutes = require('./userRoutes');
 const roleRoutes = require('./roleRoutes');
+const friendRoutes = require('./friendRoutes');
+const messageRoutes = require('./messageRoutes');
+const uploadRoutes = require('./uploadRoutes');
 
 const router = express.Router();
 
@@ -18,5 +21,8 @@ router.get('/health', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
+router.use('/friends', friendRoutes);
+router.use('/messages', messageRoutes);
+router.use('/upload', uploadRoutes);
 
 module.exports = router;

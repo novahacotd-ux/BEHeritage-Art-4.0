@@ -87,6 +87,7 @@ const register = async (req, res, next) => {
           date_of_birth: userWithRoles.date_of_birth,
           gender: userWithRoles.gender,
           intro: userWithRoles.intro,
+          avatar: userWithRoles.avatar,
           status: userWithRoles.status,
           roles: userWithRoles.roles
         },
@@ -156,6 +157,7 @@ const login = async (req, res, next) => {
           date_of_birth: user.date_of_birth,
           gender: user.gender,
           intro: user.intro,
+          avatar: user.avatar,
           status: user.status,
           roles: user.roles
         },
@@ -205,7 +207,7 @@ const logout = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { name, identity_number, date_of_birth, gender, intro } = req.body;
+    const { name, identity_number, date_of_birth, gender, intro, avatar } = req.body;
 
     const user = await User.findByPk(userId);
 
@@ -239,7 +241,8 @@ const updateProfile = async (req, res, next) => {
       ...(identity_number !== undefined && { identity_number }),
       ...(date_of_birth !== undefined && { date_of_birth }),
       ...(gender !== undefined && { gender }),
-      ...(intro !== undefined && { intro })
+      ...(intro !== undefined && { intro }),
+      ...(avatar !== undefined && { avatar })
     });
 
     // Fetch updated user with roles
