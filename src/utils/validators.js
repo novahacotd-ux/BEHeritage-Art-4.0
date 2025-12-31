@@ -396,6 +396,30 @@ const addEventFaqValidation = [
   body("answer").trim().notEmpty().withMessage("Answer is required"),
 ];
 
+const createForumPostValidation = [
+  body("content")
+    .trim()
+    .notEmpty()
+    .withMessage("Content is required")
+    .isLength({ max: 255 })
+    .withMessage("Content must not exceed 255 characters"),
+
+  body("tag")
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage("Tag must not exceed 255 characters"),
+];
+
+const createForumCommentValidation = [
+  body("content")
+    .trim()
+    .notEmpty()
+    .withMessage("Content is required")
+    .isLength({ max: 255 })
+    .withMessage("Content must not exceed 255 characters"),
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
@@ -412,4 +436,6 @@ module.exports = {
   createEventValidation,
   updateEventValidation,
   addEventFaqValidation,
+  createForumPostValidation,
+  createForumCommentValidation,
 };

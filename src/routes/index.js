@@ -5,6 +5,7 @@ const roleRoutes = require("./roleRoutes");
 const newsRoutes = require("./newsRoutes");
 const analyzeViewRoutes = require("./analyzeViewRoutes");
 const eventRoutes = require("./eventRoutes");
+const forumRoutes = require("./forumRoutes");
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use("/roles", roleRoutes);
 router.use("/news", newsRoutes);
 router.use("/analyze-views", analyzeViewRoutes);
 router.use("/events", eventRoutes);
+router.use("/forums", forumRoutes);
 
 module.exports = router;
