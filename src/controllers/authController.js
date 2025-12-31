@@ -87,6 +87,7 @@ const register = async (req, res, next) => {
           date_of_birth: userWithRoles.date_of_birth,
           gender: userWithRoles.gender,
           intro: userWithRoles.intro,
+          avatar: userWithRoles.avatar,
           status: userWithRoles.status,
           roles: userWithRoles.roles
         },
@@ -156,6 +157,7 @@ const login = async (req, res, next) => {
           date_of_birth: user.date_of_birth,
           gender: user.gender,
           intro: user.intro,
+          avatar: user.avatar,
           status: user.status,
           roles: user.roles
         },
@@ -199,9 +201,132 @@ const logout = async (req, res, next) => {
   }
 };
 
+/**
+ * Update user profile
+ */
+const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { name, identity_number, date_of_birth, gender, intro, avatar } = req.body;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if updating identity_number to existing one
+    if (identity_number && identity_number !== user.identity_number) {
+      const existingIdentity = await User.findOne({
+        where: {
+          id: { [require('sequelize').Op.ne]: userId },
+          identity_number
+        }
+      });
+
+      if (existingIdentity) {
+        return res.status(409).json({
+          success: false,
+          message: 'Identity number already exists'
+        });
+      }
+    }
+
+    // Update user
+    await user.update({
+      ...(name && { name }),
+      ...(identity_number !== undefined && { identity_number }),
+      ...(date_of_birth !== undefined && { date_of_birth }),
+      ...(gender !== undefined && { gender }),
+      ...(intro !== undefined && { intro }),
+      ...(avatar !== undefined && { avatar })
+    });
+
+    // Fetch updated user with roles
+    const updatedUser = await User.findByPk(userId, {
+      include: [{
+        model: Role,
+        as: 'roles',
+        attributes: ['id', 'role_name', 'role_code', 'role_description'],
+        through: { attributes: [] }
+      }]
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: updatedUser
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Change password
+ */
+const changePassword = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { current_password, new_password } = req.body;
+
+    // Validate input
+    if (!current_password || !new_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required'
+      });
+    }
+
+    // Validate new password length
+    if (new_password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long'
+      });
+    }
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify current password
+    const isPasswordValid = await user.comparePassword(current_password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Update password (will be automatically hashed by the model hook)
+    await user.update({ password: new_password });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
-  logout
+  logout,
+  updateProfile,
+  changePassword
 };
