@@ -32,6 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 
+<<<<<<< HEAD
 // Make io accessible to routes
 app.set('io', io);
 
@@ -104,6 +105,19 @@ io.on('connection', (socket) => {
     }
   });
 });
+=======
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Heritage Art API Docs',
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'none',
+    filter: true,
+    tryItOutEnabled: true
+  }
+}));
+>>>>>>> origin/social-feature
 
 // API Routes
 app.use('/api', routes);
@@ -132,10 +146,16 @@ const startServer = async () => {
       console.log(`
 🚀 Server is running on port ${PORT}
 📝 Environment: ${process.env.NODE_ENV || 'development'}
+📚 API Documentation: http://localhost:${PORT}/api-docs
+🔑 Authorize with JWT token in Swagger UI
 🔗 API URL: http://localhost:${PORT}/api
+<<<<<<< HEAD
 🏥 Health check: http://localhost:${PORT}/api/health
 🔌 Socket.IO: Running
       `);
+=======
+🏥 Health check: http://localhost:${PORT}/api/health`);
+>>>>>>> origin/social-feature
     });
   } catch (error) {
     console.error('Failed to start server:', error);

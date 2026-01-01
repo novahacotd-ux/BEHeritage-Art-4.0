@@ -5,6 +5,10 @@ const roleRoutes = require("./roleRoutes");
 const friendRoutes = require("./friendRoutes");
 const messageRoutes = require("./messageRoutes");
 const uploadRoutes = require("./uploadRoutes");
+const newsRoutes = require("./newsRoutes");
+const analyzeViewRoutes = require("./analyzeViewRoutes");
+const eventRoutes = require("./eventRoutes");
+const forumRoutes = require("./forumRoutes");
 
 const siteRoutes = require("./siteRoutes");
 const siteImageRoutes = require("./siteImageRoutes");
@@ -34,5 +38,12 @@ router.use("/roles", roleRoutes);
 router.use("/friends", friendRoutes);
 router.use("/messages", messageRoutes);
 router.use("/upload", uploadRoutes);
+router.use("/auth", authRoutes);
+router.use("/users", userRoutes);
+router.use("/roles", roleRoutes);
+router.use("/news", newsRoutes);
+router.use("/analyze-views", analyzeViewRoutes);
+router.use("/events", eventRoutes);
+router.use("/forums", forumRoutes);
 
 module.exports = router;
