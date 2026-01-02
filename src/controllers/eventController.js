@@ -243,6 +243,27 @@ const addEventFaq = async (req, res, next) => {
   }
 };
 
+// Delete FAQ
+const deleteEventFaq = async (req, res, next) => {
+  try {
+    const { faqId } = req.params;
+
+    const faq = await EventFaq.findByPk(faqId);
+    if (!faq) {
+      return res.status(404).json({ success: false, message: "FAQ not found" });
+    }
+
+    await faq.destroy();
+
+    res.status(200).json({
+      success: true,
+      message: "FAQ deleted",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Register for Event
 const registerForEvent = async (req, res, next) => {
   try {
