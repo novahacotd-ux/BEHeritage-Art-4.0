@@ -48,11 +48,11 @@ router.post(
 );
 
 // Delete FAQ
-router.delete(
-  "/faqs/:faqId",
-  authorize("ADMIN"),
-  eventController.deleteEventFaq
-);
+// router.delete(
+//   "/faqs/:faqId",
+//   authorize("ADMIN"),
+//   eventController.deleteEventFaq
+// );
 
 // Registers
 router.post(

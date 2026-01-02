@@ -1,5 +1,5 @@
-const { User, Role, UserRole } = require('../models');
-const { generateToken } = require('../utils/jwt');
+const { User, Role, UserRole, RefreshToken } = require('../models');
+const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
 
 /**
  * Register a new user
@@ -72,8 +72,19 @@ const register = async (req, res, next) => {
       }]
     });
 
-    // Generate token
+    // Generate tokens
     const token = generateToken({ id: user.id, email: user.email });
+    const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+    // Save refresh token to database
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+
+    await RefreshToken.create({
+      user_id: user.id,
+      token: refreshToken,
+      expires_at: expiresAt
+    });
 
     res.status(201).json({
       success: true,
@@ -91,7 +102,8 @@ const register = async (req, res, next) => {
           status: userWithRoles.status,
           roles: userWithRoles.roles
         },
-        token
+        token,
+        refreshToken
       }
     });
   } catch (error) {
@@ -142,8 +154,19 @@ const login = async (req, res, next) => {
       });
     }
 
-    // Generate token
+    // Generate tokens
     const token = generateToken({ id: user.id, email: user.email });
+    const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+    // Save refresh token to database
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+
+    await RefreshToken.create({
+      user_id: user.id,
+      token: refreshToken,
+      expires_at: expiresAt
+    });
 
     res.status(200).json({
       success: true,
@@ -161,7 +184,8 @@ const login = async (req, res, next) => {
           status: user.status,
           roles: user.roles
         },
-        token
+        token,
+        refreshToken
       }
     });
   } catch (error) {
@@ -186,12 +210,27 @@ const getProfile = async (req, res, next) => {
 };
 
 /**
- * Logout user (client-side token removal)
+ * Logout user - revoke refresh token
  */
 const logout = async (req, res, next) => {
   try {
-    // In a JWT-based system, logout is typically handled client-side
-    // by removing the token from storage
+    const userId = req.user.id;
+    const refreshToken = req.body.refreshToken;
+
+    if (refreshToken) {
+      // Revoke the specific refresh token
+      await RefreshToken.update(
+        { revoked_at: new Date() },
+        { where: { user_id: userId, token: refreshToken } }
+      );
+    } else {
+      // Revoke all refresh tokens for this user
+      await RefreshToken.update(
+        { revoked_at: new Date() },
+        { where: { user_id: userId, revoked_at: null } }
+      );
+    }
+
     res.status(200).json({
       success: true,
       message: 'Logout successful'
@@ -200,6 +239,7 @@ const logout = async (req, res, next) => {
     next(error);
   }
 };
+ 
 
 /**
  * Update user profile
@@ -322,11 +362,126 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+/**
+ * Refresh access token using refresh token
+ */
+const refreshToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verify refresh token
+    let decoded;
+    try {
+      decoded = verifyRefreshToken(refreshToken);
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Refresh token expired. Please login again.'
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    // Check if refresh token exists in database and is valid
+    const storedToken = await RefreshToken.findOne({
+      where: { token: refreshToken, user_id: decoded.id }
+    });
+
+    if (!storedToken) {
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token not found'
+      });
+    }
+
+    if (!storedToken.isValid()) {
+      return res.status(401).json({
+        success: false,
+        message: storedToken.isRevoked()
+          ? 'Refresh token has been revoked'
+          : 'Refresh token has expired'
+      });
+    }
+
+    // Get user from database
+    const user = await User.findByPk(decoded.id, {
+      include: [{
+        model: Role,
+        as: 'roles',
+        attributes: ['id', 'role_name', 'role_code'],
+        through: { attributes: [] }
+      }]
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (user.status !== 'Active') {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is not active'
+      });
+    }
+
+    // Generate new access token
+    const newAccessToken = generateToken({
+      id: user.id,
+      email: user.email
+    });
+
+    // Optionally generate new refresh token and revoke the old one (rotation)
+    const newRefreshToken = generateRefreshToken({
+      id: user.id,
+      email: user.email
+    });
+
+    // Revoke old refresh token
+    await storedToken.update({ revoked_at: new Date() });
+
+    // Save new refresh token
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+
+    await RefreshToken.create({
+      user_id: user.id,
+      token: newRefreshToken,
+      expires_at: expiresAt
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        token: newAccessToken,
+        refreshToken: newRefreshToken
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
   logout,
   updateProfile,
-  changePassword
+  changePassword,
+  refreshToken
 };
