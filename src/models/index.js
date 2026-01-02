@@ -1,13 +1,8 @@
 const { sequelize } = require("../../config/db");
-const User = require("./User");
-const Role = require("./Role");
-const UserRole = require("./UserRole");
 const News = require("./News");
 const NewsImage = require("./NewsImage");
 const AnalyzeView = require("./AnalyzeView");
 const AnalyzeViewImage = require("./AnalyzeViewImage");
-const Event = require("./Event");
-const EventFaq = require("./EventFaq");
 const Event = require("./Event");
 const EventFaq = require("./EventFaq");
 const EventRegister = require("./EventRegister");
@@ -16,10 +11,6 @@ const ForumPostImage = require("./ForumPostImage");
 const ForumPostVideo = require("./ForumPostVideo");
 const ForumPostComment = require("./ForumPostComment");
 const ForumLike = require("./ForumLike");
-const { sequelize } = require("../../config/db");
-const User = require("./User");
-const Role = require("./Role");
-const UserRole = require("./UserRole");
 const Category = require("./Category");
 const Topic = require("./Topic");
 const Style = require("./Style");
@@ -36,6 +27,7 @@ const Payment = require("./Payment");
 const User = require("./User");
 const Role = require("./Role");
 const UserRole = require("./UserRole");
+const RefreshToken = require("./RefreshToken");
 const Friendship = require("./Friendship");
 const Message = require("./Message");
 
@@ -70,6 +62,10 @@ User.hasMany(UserRole, { foreignKey: "user_id", as: "userRoles" });
 Role.hasMany(UserRole, { foreignKey: "role_id", as: "userRoles" });
 UserRole.belongsTo(User, { foreignKey: "user_id", as: "user" });
 UserRole.belongsTo(Role, { foreignKey: "role_id", as: "role" });
+
+// RefreshToken associations
+User.hasMany(RefreshToken, { foreignKey: "user_id", as: "refreshTokens" });
+RefreshToken.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
 // PART B: HISTORICAL SITES
 Region.hasMany(HistoricalSite, { foreignKey: "region_id" });
@@ -168,26 +164,6 @@ Review.belongsTo(User, {
   as: "user",
 }); // alias 'user' để hiện tên người comment
 
-// Direct associations for convenience
-User.hasMany(UserRole, {
-  foreignKey: "user_id",
-  as: "userRoles",
-});
-
-Role.hasMany(UserRole, {
-  foreignKey: "role_id",
-  as: "userRoles",
-});
-
-UserRole.belongsTo(User, {
-  foreignKey: "user_id",
-  as: "user",
-});
-
-UserRole.belongsTo(Role, {
-  foreignKey: "role_id",
-  as: "role",
-});
 
 // News and NewsImage associations
 News.hasMany(NewsImage, {
@@ -417,6 +393,7 @@ module.exports = {
   User,
   Role,
   UserRole,
+  RefreshToken,
   Friendship,
   Message,
   Region,

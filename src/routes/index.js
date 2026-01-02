@@ -1,7 +1,3 @@
-const express = require("express");
-const authRoutes = require("./authRoutes");
-const userRoutes = require("./userRoutes");
-const roleRoutes = require("./roleRoutes");
 const friendRoutes = require("./friendRoutes");
 const messageRoutes = require("./messageRoutes");
 const uploadRoutes = require("./uploadRoutes");
