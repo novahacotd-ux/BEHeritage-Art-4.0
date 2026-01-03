@@ -1,7 +1,7 @@
-const { Sequelize } = require('sequelize');
-const config = require('./database');
+const { Sequelize } = require("sequelize");
+const config = require("./database");
 
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || "development";
 const dbConfig = config[env];
 
 const sequelize = new Sequelize(
@@ -13,16 +13,16 @@ const sequelize = new Sequelize(
     port: dbConfig.port,
     dialect: dbConfig.dialect,
     logging: dbConfig.logging,
-    pool: dbConfig.pool
+    pool: dbConfig.pool,
   }
 );
 
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connection has been established successfully.');
+    console.log("✅ Database connection has been established successfully.");
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
+    console.error("❌ Unable to connect to the database:", error);
   }
 };
 
