@@ -86,6 +86,23 @@ const register = async (req, res, next) => {
       expires_at: expiresAt
     });
 
+    // Set tokens in HTTP-Only cookies
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -101,9 +118,7 @@ const register = async (req, res, next) => {
           avatar: userWithRoles.avatar,
           status: userWithRoles.status,
           roles: userWithRoles.roles
-        },
-        token,
-        refreshToken
+        }
       }
     });
   } catch (error) {
@@ -168,6 +183,23 @@ const login = async (req, res, next) => {
       expires_at: expiresAt
     });
 
+    // Set tokens in HTTP-Only cookies
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -183,9 +215,7 @@ const login = async (req, res, next) => {
           avatar: user.avatar,
           status: user.status,
           roles: user.roles
-        },
-        token,
-        refreshToken
+        }
       }
     });
   } catch (error) {
@@ -215,7 +245,7 @@ const getProfile = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
       // Revoke the specific refresh token
@@ -231,6 +261,10 @@ const logout = async (req, res, next) => {
       );
     }
 
+    // Clear cookies
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
     res.status(200).json({
       success: true,
       message: 'Logout successful'
@@ -239,7 +273,7 @@ const logout = async (req, res, next) => {
     next(error);
   }
 };
- 
+
 
 /**
  * Update user profile
@@ -367,7 +401,7 @@ const changePassword = async (req, res, next) => {
  */
 const refreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
       return res.status(400).json({
@@ -463,13 +497,26 @@ const refreshToken = async (req, res, next) => {
       expires_at: expiresAt
     });
 
+    // Set new tokens in HTTP-Only cookies
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'strict' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     res.status(200).json({
       success: true,
-      message: 'Token refreshed successfully',
-      data: {
-        token: newAccessToken,
-        refreshToken: newRefreshToken
-      }
+      message: 'Token refreshed successfully'
     });
   } catch (error) {
     next(error);
