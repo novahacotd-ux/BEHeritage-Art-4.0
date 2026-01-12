@@ -28,7 +28,7 @@ const getAllAddresses = async (req, res, next) => {
             }],
             limit: parseInt(limit),
             offset: parseInt(offset),
-            order: [['created_at', 'DESC']]
+            order: [['address_id', 'DESC']]
         });
 
         res.status(200).json({
@@ -57,7 +57,7 @@ const getUserAddresses = async (req, res, next) => {
 
         const addresses = await Address.findAll({
             where: { user_id: userId },
-            order: [['is_default', 'DESC'], ['created_at', 'DESC']]
+            order: [['is_default', 'DESC'], ['address_id', 'DESC']]
         });
 
         res.status(200).json({
@@ -276,7 +276,7 @@ const deleteAddress = async (req, res, next) => {
         if (wasDefault) {
             const nextAddress = await Address.findOne({
                 where: { user_id: addressUserId },
-                order: [['created_at', 'ASC']]
+                order: [['address_id', 'ASC']]
             });
 
             if (nextAddress) {
