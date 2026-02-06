@@ -1,98 +1,215 @@
-const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dw7d6ohdk',
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+/**
+ * Detect media type from MIME type
+ * @param {string} mimetype - MIME type of the file
+ * @returns {string|null} - 'image', 'video', or null
+ */
+const detectMediaType = (mimetype) => {
+  if (mimetype && mimetype.startsWith('image/')) return 'image';
+  if (mimetype && mimetype.startsWith('video/')) return 'video';
+  return null;
+};
+
+/**
+ * Get Cloudinary resource type based on MIME type
+ * @param {string} mimetype - MIME type of the file
+ * @returns {string} - 'image' or 'video'
+ */
+const getResourceType = (mimetype) => {
+  return detectMediaType(mimetype) === 'video' ? 'video' : 'image';
+};
+
+const normalizeUploadType = (value) => {
+  const raw = (value || '').toString().trim().toLowerCase();
+  if (raw === 'avata') return 'avatar';
+  if (raw === 'experience-post' || raw === 'post-media') return 'post';
+  return raw;
+};
+
+const getUploadConfig = (uploadType, mediaType) => {
+  const isVideo = mediaType === 'video';
+
+  if (uploadType === 'avatar') {
+    return {
+      folder: 'HA4/avatars',
+      resource_type: 'image',
+      eager: [
+        {
+          width: 500,
+          height: 500,
+          crop: 'fill',
+          gravity: 'face',
+          quality: 'auto:good',
+          fetch_format: 'auto'
+        }
+      ]
+    };
+  }
+
+  if (uploadType === 'location') {
+    return {
+      folder: 'HA4/locations',
+      resource_type: 'image',
+      eager: [
+        { width: 1200, height: 800, crop: 'limit' },
+        { quality: 'auto:good', fetch_format: 'auto' }
+      ]
+    };
+  }
+
+  if (uploadType === 'post') {
+    return {
+      folder: 'HA4/experience-posts',
+      resource_type: isVideo ? 'video' : 'image',
+      eager: isVideo
+        ? [
+            { width: 1280, height: 720, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' },
+            { width: 640, height: 360, crop: 'limit', quality: 'auto:low', fetch_format: 'auto' }
+          ]
+        : [
+            { width: 1920, height: 1080, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' },
+            { width: 800, height: 600, crop: 'limit', quality: 'auto:eco', fetch_format: 'auto' }
+          ]
+    };
+  }
+
+  return null;
+};
 
 // Configure multer for memory storage
 const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max
+    fileSize: 35 * 1024 * 1024 // 35MB max (videos)
   },
   fileFilter: (req, file, cb) => {
-    // Accept images only
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('Chỉ chấp nhận file ảnh'), false);
+    const mediaType = detectMediaType(file.mimetype);
+    if (!mediaType) {
+      return cb(new Error('Chỉ chấp nhận file ảnh hoặc video'), false);
     }
+    // Attach detected type to file object for use in handlers
+    file.mediaType = mediaType;
     cb(null, true);
   }
 });
 
 /**
- * Upload avatar to Cloudinary
+ * Unified upload for avatar, location, post
  */
-const uploadAvatar = async (req, res, next) => {
+const uploadMedia = async (req, res, next) => {
   try {
-    if (!req.file) {
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         success: false,
         message: 'Không có file được upload'
       });
     }
 
-    console.log('Uploading file:', {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size
-    });
+    const uploadType = normalizeUploadType(req.body.type || req.query.type);
 
-    // Upload to Cloudinary using upload_stream
-    const uploadPromise = new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'HA4/avatars',
-          resource_type: 'image',
-          transformation: [
-            { width: 500, height: 500, crop: 'fill', gravity: 'face' },
-            { quality: 'auto:good' }
-          ]
-        },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary upload error:', error);
-            reject(error);
-          } else {
-            console.log('Cloudinary upload success:', result.secure_url);
-            resolve(result);
-          }
-        }
-      );
+    if (!uploadType || !['avatar', 'location', 'post'].includes(uploadType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'type không hợp lệ (avatar, location, post)'
+      });
+    }
 
-      // Pipe the buffer to Cloudinary
-      uploadStream.end(req.file.buffer);
-    });
+    if (['avatar', 'post'].includes(uploadType) && req.files.length > 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Chỉ cho phép 1 file'
+      });
+    }
 
-    const result = await uploadPromise;
+    if (uploadType === 'location' && req.files.length > 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Chỉ cho phép tối đa 10 file mỗi lần'
+      });
+    }
+
+    const uploadResults = [];
+
+    for (const file of req.files) {
+      const mediaType = detectMediaType(file.mimetype);
+
+      if (!mediaType) {
+        return res.status(400).json({
+          success: false,
+          message: 'Chỉ chấp nhận file ảnh hoặc video'
+        });
+      }
+
+      if (mediaType === 'image' && file.size > 10 * 1024 * 1024) {
+        return res.status(400).json({
+          success: false,
+          message: 'Ảnh vượt quá giới hạn 10MB'
+        });
+      }
+
+      if (mediaType === 'video' && file.size > 35 * 1024 * 1024) {
+        return res.status(400).json({
+          success: false,
+          message: 'Video vượt quá giới hạn 35MB'
+        });
+      }
+
+      if (['avatar', 'location'].includes(uploadType) && mediaType !== 'image') {
+        return res.status(400).json({
+          success: false,
+          message: 'Chỉ chấp nhận ảnh'
+        });
+      }
+
+      if (uploadType === 'post' && !['image', 'video'].includes(mediaType)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Post chỉ chấp nhận ảnh hoặc video'
+        });
+      }
+
+      const uploadOptions = getUploadConfig(uploadType, mediaType);
+      if (!uploadOptions) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể cấu hình upload cho type này'
+        });
+      }
+
+      const result = await uploadToCloudinary(file, {
+        ...uploadOptions,
+        eager_async: true,
+        eager_notification_url: process.env.CLOUDINARY_NOTIFICATION_URL || undefined
+      });
+
+      uploadResults.push({
+        uploadType,
+        mediaType,
+        url: result.secure_url,
+        publicId: result.public_id,
+        resourceType: result.resource_type
+      });
+    }
 
     res.status(200).json({
       success: true,
       message: 'Upload thành công',
-      data: {
-        url: result.secure_url,
-        publicId: result.public_id,
-        width: result.width,
-        height: result.height,
-        format: result.format
-      }
+      data: uploadResults
     });
   } catch (error) {
-    console.error('Upload error:', error);
     next(error);
   }
 };
 
 /**
- * Delete image from Cloudinary
+ * Delete media from Cloudinary
  */
-const deleteImage = async (req, res, next) => {
+const deleteMedia = async (req, res, next) => {
   try {
-    const { publicId } = req.body;
+    const { publicId, resourceType = 'image' } = req.body;
 
     if (!publicId) {
       return res.status(400).json({
@@ -101,11 +218,11 @@ const deleteImage = async (req, res, next) => {
       });
     }
 
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await deleteFromCloudinary(publicId, resourceType);
 
     res.status(200).json({
       success: true,
-      message: 'Xóa ảnh thành công',
+      message: 'Xóa file thành công',
       data: result
     });
   } catch (error) {
@@ -115,6 +232,8 @@ const deleteImage = async (req, res, next) => {
 
 module.exports = {
   upload,
-  uploadAvatar,
-  deleteImage
+  uploadMedia,
+  deleteMedia,
+  detectMediaType,
+  getResourceType
 };

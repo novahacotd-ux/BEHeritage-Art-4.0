@@ -4,7 +4,7 @@ const { body, param, query } = require('express-validator');
 exports.validateUploadImage = [
     body('site_id')
         .notEmpty().withMessage('Site ID is required')
-        .isInt({ min: 1 }).withMessage('Site ID must be a positive integer'),
+        .isUUID().withMessage('Site ID must be a valid UUID'),
 
     body('img_url')
         .notEmpty().withMessage('Image URL is required')
@@ -29,22 +29,22 @@ exports.validateUploadImage = [
 exports.validateImageId = [
     param('id')
         .notEmpty().withMessage('Image ID is required')
-        .isInt({ min: 1 }).withMessage('Image ID must be a positive integer')
+        .isUUID().withMessage('Image ID must be a valid UUID')
 ];
 
 // Validation for gallery query parameters
 exports.validateGalleryQuery = [
     query('site_id')
         .optional()
-        .isInt({ min: 1 }).withMessage('Site ID must be a positive integer'),
+        .isUUID().withMessage('Site ID must be a valid UUID'),
 
     query('region_id')
         .optional()
-        .isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
+        .isUUID().withMessage('Region ID must be a valid UUID'),
 
     query('period_id')
         .optional()
-        .isInt({ min: 1 }).withMessage('Period ID must be a positive integer'),
+        .isUUID().withMessage('Period ID must be a valid UUID'),
 
     query('page')
         .optional()

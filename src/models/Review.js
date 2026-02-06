@@ -3,9 +3,9 @@ const { sequelize } = require('../../config/db');
 
 const Review = sequelize.define('Review', {
   review_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   rating: {
     type: DataTypes.INTEGER,
@@ -19,10 +19,10 @@ const Review = sequelize.define('Review', {
     type: DataTypes.TEXT
   },
   user_id: {
-    type: DataTypes.INTEGER
+    type: DataTypes.UUID
   },
   tool_id: {
-    type: DataTypes.INTEGER
+    type: DataTypes.UUID
   }
 }, {
   tableName: 'reviews',

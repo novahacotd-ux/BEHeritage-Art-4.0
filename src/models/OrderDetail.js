@@ -3,12 +3,12 @@ const { sequelize } = require('../../config/db');
 
 const OrderDetail = sequelize.define('OrderDetail', {
     order_detail_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true
+        defaultValue: DataTypes.UUIDV4
     },
     order_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: 'orders',
@@ -16,7 +16,7 @@ const OrderDetail = sequelize.define('OrderDetail', {
         }
     },
     product_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: 'products',

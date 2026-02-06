@@ -4,7 +4,7 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         // Add topic_id column to products table
         await queryInterface.addColumn('products', 'topic_id', {
-            type: Sequelize.INTEGER,
+            type: Sequelize.UUID,
             allowNull: true,
             references: {
                 model: 'topics',
@@ -16,7 +16,7 @@ module.exports = {
 
         // Add style_id column to products table
         await queryInterface.addColumn('products', 'style_id', {
-            type: Sequelize.INTEGER,
+            type: Sequelize.UUID,
             allowNull: true,
             references: {
                 model: 'styles',

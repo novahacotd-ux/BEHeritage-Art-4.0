@@ -42,6 +42,17 @@ const AICategory = require("./AICategory");
 const AITool = require("./AITool");
 const Review = require("./Review");
 
+// 4. Location Module
+const Location = require("./Location");
+const LocationTag = require("./LocationTag");
+const MediaAsset = require("./MediaAsset");
+const LocationInteraction = require("./LocationInteraction");
+
+
+// 5.Post Experience
+const ExperiencePost = require("./ExperiencePost");
+const ExperienceComment = require("./ExperienceComment");
+
 // --- DEFINE ASSOCIATIONS ---
 
 // PART A: AUTHENTICATION
@@ -387,6 +398,88 @@ Payment.belongsTo(Order, {
   as: "order",
 });
 
+// PART E: LOCATION MODULE
+Location.hasMany(LocationTag, {
+  foreignKey: "location_id",
+  as: "tags",
+});
+LocationTag.belongsTo(Location, {
+  foreignKey: "location_id",
+  as: "location",
+});
+
+Location.hasMany(LocationInteraction, {
+  foreignKey: "location_id",
+  as: "interactions",
+});
+
+
+
+LocationInteraction.belongsTo(Location, {
+  foreignKey: "location_id",
+  as: "location",
+});
+
+User.hasMany(LocationInteraction, {
+  foreignKey: "user_id",
+  as: "locationInteractions",
+});
+LocationInteraction.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "user",
+});
+
+// MediaAsset and Location associations
+Location.hasMany(MediaAsset, {
+   foreignKey: "location_id", 
+   as: "mediaAssets", 
+  });
+MediaAsset.belongsTo(Location, { 
+    foreignKey: "location_id",
+     as: "location", 
+  });
+
+
+  // Experience Posts and Comments
+
+User.hasMany(ExperiencePost, {
+  foreignKey: "user_id",
+  as: "experiencePosts",
+});
+ExperiencePost.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "author",
+});
+
+ExperiencePost.hasMany(ExperienceComment, {
+  foreignKey: "post_id",
+  as: "comments",
+});
+ExperienceComment.belongsTo(ExperiencePost, {
+  foreignKey: "post_id",
+  as: "post",
+});
+
+User.hasMany(ExperienceComment, {
+  foreignKey: "user_id",
+  as: "experienceComments",
+});
+ExperienceComment.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "author",
+});
+
+// Self-referencing for comment replies
+ExperienceComment.hasMany(ExperienceComment, {
+  foreignKey: "parent_comment_id",
+  as: "replies",
+});
+ExperienceComment.belongsTo(ExperienceComment, {
+  foreignKey: "parent_comment_id",
+  as: "parent",
+});
+
+
 // Export models and sequelize instance
 module.exports = {
   sequelize,
@@ -425,4 +518,10 @@ module.exports = {
   Order,
   OrderDetail,
   Payment,
+  Location,
+  LocationTag,
+  MediaAsset,
+  LocationInteraction,
+  ExperiencePost,        
+  ExperienceComment, 
 };

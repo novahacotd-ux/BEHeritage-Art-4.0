@@ -3,9 +3,9 @@ const { sequelize } = require('../../config/db');
 
 const HistoricalSite = sequelize.define('HistoricalSite', {
   site_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   name: {
     type: DataTypes.STRING,
@@ -31,10 +31,10 @@ const HistoricalSite = sequelize.define('HistoricalSite', {
   // Foreign keys sẽ được tạo tự động bởi Associations, 
   // nhưng khai báo rõ ràng cũng tốt
   region_id: {
-    type: DataTypes.INTEGER
+    type: DataTypes.UUID
   },
   period_id: {
-    type: DataTypes.INTEGER
+    type: DataTypes.UUID
   }
 }, {
   tableName: 'historical_sites',

@@ -10,7 +10,7 @@ const ForumLike = sequelize.define(
       primaryKey: true,
     },
     user_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     target_id: {

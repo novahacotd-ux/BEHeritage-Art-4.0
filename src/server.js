@@ -48,23 +48,23 @@ io.on("connection", (socket) => {
 
   // User joins with their ID
   socket.on("join", (userId) => {
-    const userIdNum = Number(userId);
-    onlineUsers.set(userIdNum, socket.id);
-    console.log(`User ${userIdNum} joined with socket ${socket.id}`);
+    const userIdKey = String(userId);
+    onlineUsers.set(userIdKey, socket.id);
+    console.log(`User ${userIdKey} joined with socket ${socket.id}`);
     console.log("Online users:", Array.from(onlineUsers.keys()));
 
     // Broadcast online status
-    io.emit("user_online", { userId: userIdNum });
+    io.emit("user_online", { userId: userIdKey });
   });
 
   // Handle send message
   socket.on("send_message", (data) => {
     const { receiver_id, message } = data;
-    const receiverIdNum = Number(receiver_id);
-    const receiverSocketId = onlineUsers.get(receiverIdNum);
+    const receiverIdKey = String(receiver_id);
+    const receiverSocketId = onlineUsers.get(receiverIdKey);
 
     console.log("send_message event:", {
-      receiver_id: receiverIdNum,
+      receiver_id: receiverIdKey,
       message_id: message.id,
     });
     console.log("Receiver socket ID:", receiverSocketId);
@@ -75,7 +75,7 @@ io.on("connection", (socket) => {
       io.to(receiverSocketId).emit("receive_message", message);
     } else {
       console.log(
-        `Receiver ${receiverIdNum} is not online or not found in map`
+        `Receiver ${receiverIdKey} is not online or not found in map`
       );
     }
   });

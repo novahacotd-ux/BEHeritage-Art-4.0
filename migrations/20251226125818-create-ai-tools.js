@@ -2,14 +2,14 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('ai_tools', {
-      tool_id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
+      tool_id: { allowNull: false, primaryKey: true, type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4 },
       name: { type: Sequelize.STRING, allowNull: false },
       description: { type: Sequelize.TEXT },
       website_link: { type: Sequelize.STRING },
       avg_rating: { type: Sequelize.FLOAT, defaultValue: 0.0 },
       total_reviews: { type: Sequelize.INTEGER, defaultValue: 0 },
       category_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: { model: 'ai_categories', key: 'category_id' },
         onUpdate: 'CASCADE', onDelete: 'SET NULL'
       },

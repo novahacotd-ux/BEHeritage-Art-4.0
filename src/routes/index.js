@@ -23,7 +23,12 @@ const siteImageRoutes = require("./siteImageRoutes");
 const regionRoutes = require("./regionRoutes");
 const periodRoutes = require("./periodRoutes");
 const aiRoutes = require("./aiRoutes");
+const locationRoutes = require("./locationRoutes");
+const mediaRoutes = require("./mediaRoutes");
 const router = express.Router();
+const experiencePostRoutes = require('./experiencePostRoutes');
+const experienceCommentRoutes = require('./experienceCommentRoutes');
+
 
 // Health check endpoint
 router.get("/health", (req, res) => {
@@ -40,6 +45,10 @@ router.use("/site-images", siteImageRoutes);
 router.use("/regions", regionRoutes);
 router.use("/periods", periodRoutes);
 router.use("/ai", aiRoutes);
+router.use("/locations", locationRoutes);
+router.use("/media", mediaRoutes);
+router.use('/experience-posts', experiencePostRoutes);
+router.use("/experience-comments", experienceCommentRoutes);
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
 router.use("/roles", roleRoutes);

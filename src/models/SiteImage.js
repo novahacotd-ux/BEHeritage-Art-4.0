@@ -3,9 +3,9 @@ const { sequelize } = require('../../config/db');
 
 const SiteImage = sequelize.define('SiteImage', {
   image_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   img_url: {
     type: DataTypes.STRING, // Hoặc TEXT nếu url dài
@@ -31,10 +31,10 @@ const SiteImage = sequelize.define('SiteImage', {
     }
   },
   site_id: {
-    type: DataTypes.INTEGER
+    type: DataTypes.UUID
   },
   user_id: {
-    type: DataTypes.INTEGER // Người đăng ảnh
+    type: DataTypes.UUID // Người đăng ảnh
   }
 }, {
   tableName: 'site_images',

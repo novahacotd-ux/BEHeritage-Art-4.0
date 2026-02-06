@@ -3,12 +3,13 @@ const { sequelize } = require('../../config/db');
 
 const Address = sequelize.define('Address', {
     address_id: {
-        type: DataTypes.INTEGER,
+       type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true
+        defaultValue: DataTypes.UUIDV4
     },
     user_id: {
-        type: DataTypes.INTEGER,
+       type: DataTypes.UUID,
+       defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         references: {
             model: 'users',

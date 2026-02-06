@@ -1,84 +1,98 @@
-'use strict';
+﻿'use strict';
+const { v4: uuidv4 } = require('uuid');
+
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
+        const regions = await queryInterface.sequelize.query(
+            'SELECT region_id, name FROM regions;',
+            { type: Sequelize.QueryTypes.SELECT }
+        );
+        const periods = await queryInterface.sequelize.query(
+            'SELECT period_id, name FROM historical_periods;',
+            { type: Sequelize.QueryTypes.SELECT }
+        );
+
+        const regionMap = Object.fromEntries(regions.map((r) => [r.name, r.region_id]));
+        const periodMap = Object.fromEntries(periods.map((p) => [p.name, p.period_id]));
+
         await queryInterface.bulkInsert('historical_sites', [
             {
-                site_id: 1,
-                name: 'Chùa Một Cột',
-                province: 'Hà Nội',
-                description: 'Chùa Một Cột hay Chùa Diên Hựu là một ngôi chùa lịch sử của Việt Nam, nằm trong khu vực Hoàng Thành Thăng Long tại phố Ông Ích Khiêm, Hà Nội.',
+                site_id: uuidv4(),
+                name: 'ChÃ¹a Má»™t Cá»™t',
+                province: 'HÃ  Ná»™i',
+                description: 'ChÃ¹a Má»™t Cá»™t hay ChÃ¹a DiÃªn Há»±u lÃ  má»™t ngÃ´i chÃ¹a lá»‹ch sá»­ cá»§a Viá»‡t Nam, náº±m trong khu vá»±c HoÃ ng ThÃ nh ThÄƒng Long táº¡i phá»‘ Ã”ng Ãch KhiÃªm, HÃ  Ná»™i.',
                 lat: 21.0357,
                 lng: 105.8342,
                 year_built: 1049,
-                region_id: 1,
-                period_id: 1,
+                region_id: regionMap['Miá»n Báº¯c'],
+                period_id: periodMap['Triá»u Ä‘áº¡i LÃ½'],
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
-                site_id: 2,
-                name: 'Văn Miếu - Quốc Tử Giám',
-                province: 'Hà Nội',
-                description: 'Văn Miếu - Quốc Tử Giám là một di tích lịch sử văn hóa nổi tiếng của Hà Nội và cả nước, nằm ở phía Nam Thăng Long.',
+                site_id: uuidv4(),
+                name: 'VÄƒn Miáº¿u - Quá»‘c Tá»­ GiÃ¡m',
+                province: 'HÃ  Ná»™i',
+                description: 'VÄƒn Miáº¿u - Quá»‘c Tá»­ GiÃ¡m lÃ  má»™t di tÃ­ch lá»‹ch sá»­ vÄƒn hÃ³a ná»•i tiáº¿ng cá»§a HÃ  Ná»™i vÃ  cáº£ nÆ°á»›c, náº±m á»Ÿ phÃ­a Nam ThÄƒng Long.',
                 lat: 21.0277,
                 lng: 105.8355,
                 year_built: 1070,
-                region_id: 1,
-                period_id: 1,
+                region_id: regionMap['Miá»n Báº¯c'],
+                period_id: periodMap['Triá»u Ä‘áº¡i LÃ½'],
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
-                site_id: 3,
-                name: 'Khu di tích Cố đô Huế',
-                province: 'Thừa Thiên Huế',
-                description: 'Quần thể di tích Cố đô Huế là một quần thể di tích đặc sắc, bao gồm kinh thành và nhiều lăng tẩm, đền đài, miếu mạo khác của triều Nguyễn.',
+                site_id: uuidv4(),
+                name: 'Khu di tÃ­ch Cá»‘ Ä‘Ã´ Huáº¿',
+                province: 'Thá»«a ThiÃªn Huáº¿',
+                description: 'Quáº§n thá»ƒ di tÃ­ch Cá»‘ Ä‘Ã´ Huáº¿ lÃ  má»™t quáº§n thá»ƒ di tÃ­ch Ä‘áº·c sáº¯c, bao gá»“m kinh thÃ nh vÃ  nhiá»u lÄƒng táº©m, Ä‘á»n Ä‘Ã i, miáº¿u máº¡o khÃ¡c cá»§a triá»u Nguyá»…n.',
                 lat: 16.4673,
                 lng: 107.5905,
                 year_built: 1802,
-                region_id: 2,
-                period_id: 4,
+                region_id: regionMap['Miá»n Trung'],
+                period_id: periodMap['Triá»u Ä‘áº¡i Nguyá»…n'],
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
-                site_id: 4,
-                name: 'Thánh địa Mỹ Sơn',
-                province: 'Quảng Nam',
-                description: 'Mỹ Sơn là một quần thể di tích tháp đền Hindu của vương quốc Champa cổ, tọa lạc tại một thung lũng có đường kính khoảng 2 km.',
+                site_id: uuidv4(),
+                name: 'ThÃ¡nh Ä‘á»‹a Má»¹ SÆ¡n',
+                province: 'Quáº£ng Nam',
+                description: 'Má»¹ SÆ¡n lÃ  má»™t quáº§n thá»ƒ di tÃ­ch thÃ¡p Ä‘á»n Hindu cá»§a vÆ°Æ¡ng quá»‘c Champa cá»•, tá»a láº¡c táº¡i má»™t thung lÅ©ng cÃ³ Ä‘Æ°á»ng kÃ­nh khoáº£ng 2 km.',
                 lat: 15.7647,
                 lng: 108.1251,
                 year_built: 400,
-                region_id: 2,
+                region_id: regionMap['Miá»n Trung'],
                 period_id: null,
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
-                site_id: 5,
-                name: 'Thành nhà Hồ',
-                province: 'Thanh Hóa',
-                description: 'Thành nhà Hồ là một di tích lịch sử được xây dựng trong thời nhà Hồ, được UNESCO công nhận là di sản văn hóa thế giới.',
+                site_id: uuidv4(),
+                name: 'ThÃ nh nhÃ  Há»“',
+                province: 'Thanh HÃ³a',
+                description: 'ThÃ nh nhÃ  Há»“ lÃ  má»™t di tÃ­ch lá»‹ch sá»­ Ä‘Æ°á»£c xÃ¢y dá»±ng trong thá»i nhÃ  Há»“, Ä‘Æ°á»£c UNESCO cÃ´ng nháº­n lÃ  di sáº£n vÄƒn hÃ³a tháº¿ giá»›i.',
                 lat: 19.8956,
                 lng: 105.5533,
                 year_built: 1397,
-                region_id: 1,
-                period_id: 2,
+                region_id: regionMap['Miá»n Báº¯c'],
+                period_id: periodMap['Triá»u Ä‘áº¡i Tráº§n'],
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
-                site_id: 6,
-                name: 'Nhà thờ Đức Bà Sài Gòn',
-                province: 'TP. Hồ Chí Minh',
-                description: 'Nhà thờ Đức Bà Sài Gòn hay Vương cung thánh đường Chính tòa Đức Mẹ Vô Nhiễm Nguyên Tội là một nhà thờ Công giáo tại trung tâm thành phố Hồ Chí Minh.',
+                site_id: uuidv4(),
+                name: 'NhÃ  thá» Äá»©c BÃ  SÃ i GÃ²n',
+                province: 'TP. Há»“ ChÃ­ Minh',
+                description: 'NhÃ  thá» Äá»©c BÃ  SÃ i GÃ²n hay VÆ°Æ¡ng cung thÃ¡nh Ä‘Æ°á»ng ChÃ­nh tÃ²a Äá»©c Máº¹ VÃ´ Nhiá»…m NguyÃªn Tá»™i lÃ  má»™t nhÃ  thá» CÃ´ng giÃ¡o táº¡i trung tÃ¢m thÃ nh phá»‘ Há»“ ChÃ­ Minh.',
                 lat: 10.7797,
                 lng: 106.6990,
                 year_built: 1880,
-                region_id: 3,
-                period_id: 5,
+                region_id: regionMap['Miá»n Nam'],
+                period_id: periodMap['Thá»i ká»³ PhÃ¡p thuá»™c'],
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -89,3 +103,5 @@ module.exports = {
         await queryInterface.bulkDelete('historical_sites', null, {});
     }
 };
+
+

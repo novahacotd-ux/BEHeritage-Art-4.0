@@ -5,12 +5,12 @@ module.exports = {
         await queryInterface.createTable('order_details', {
             order_detail_id: {
                 allowNull: false,
-                autoIncrement: true,
                 primaryKey: true,
-                type: Sequelize.INTEGER
+                type: Sequelize.UUID,
+                defaultValue: Sequelize.UUIDV4
             },
             order_id: {
-                type: Sequelize.INTEGER,
+                type: Sequelize.UUID,
                 allowNull: false,
                 references: {
                     model: 'orders',
@@ -20,7 +20,7 @@ module.exports = {
                 onDelete: 'CASCADE'
             },
             product_id: {
-                type: Sequelize.INTEGER,
+                type: Sequelize.UUID,
                 allowNull: false,
                 references: {
                     model: 'products',

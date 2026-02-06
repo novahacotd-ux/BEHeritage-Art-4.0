@@ -1,5 +1,7 @@
 const { body } = require("express-validator");
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const registerValidation = [
   body("name")
     .trim()
@@ -108,8 +110,8 @@ const createUserValidation = [
     .isArray({ min: 1 })
     .withMessage("At least one role must be assigned")
     .custom((value) => {
-      if (!value.every((id) => Number.isInteger(id) && id > 0)) {
-        throw new Error("All role IDs must be positive integers");
+      if (!value.every((id) => typeof id === "string" && UUID_REGEX.test(id))) {
+        throw new Error("All role IDs must be valid UUIDs");
       }
       return true;
     }),
@@ -120,8 +122,8 @@ const assignRolesValidation = [
     .isArray({ min: 1 })
     .withMessage("At least one role must be assigned")
     .custom((value) => {
-      if (!value.every((id) => Number.isInteger(id) && id > 0)) {
-        throw new Error("All role IDs must be positive integers");
+      if (!value.every((id) => typeof id === "string" && UUID_REGEX.test(id))) {
+        throw new Error("All role IDs must be valid UUIDs");
       }
       return true;
     }),
@@ -458,18 +460,18 @@ const createProductValidation = [
   body("category_id")
     .notEmpty()
     .withMessage("Category is required")
-    .isInt({ min: 1 })
-    .withMessage("Category ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Category ID must be a valid UUID"),
 
   body("topic_id")
     .optional()
-    .isInt({ min: 1 })
-    .withMessage("Topic ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Topic ID must be a valid UUID"),
 
   body("style_id")
     .optional()
-    .isInt({ min: 1 })
-    .withMessage("Style ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Style ID must be a valid UUID"),
 
   body("name")
     .trim()
@@ -500,18 +502,18 @@ const createProductValidation = [
 const updateProductValidation = [
   body("category_id")
     .optional()
-    .isInt({ min: 1 })
-    .withMessage("Category ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Category ID must be a valid UUID"),
 
   body("topic_id")
     .optional()
-    .isInt({ min: 1 })
-    .withMessage("Topic ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Topic ID must be a valid UUID"),
 
   body("style_id")
     .optional()
-    .isInt({ min: 1 })
-    .withMessage("Style ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Style ID must be a valid UUID"),
 
   body("name")
     .optional()
@@ -596,8 +598,8 @@ const addToCartValidation = [
   body("product_id")
     .notEmpty()
     .withMessage("Product ID is required")
-    .isInt({ min: 1 })
-    .withMessage("Product ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Product ID must be a valid UUID"),
 
   body("quantity")
     .notEmpty()
@@ -619,8 +621,8 @@ const createOrderValidation = [
   body("address_id")
     .notEmpty()
     .withMessage("Address is required")
-    .isInt({ min: 1 })
-    .withMessage("Address ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Address ID must be a valid UUID"),
 
   body("note")
     .optional()
@@ -649,8 +651,8 @@ const createPaymentValidation = [
   body("order_id")
     .notEmpty()
     .withMessage("Order ID is required")
-    .isInt({ min: 1 })
-    .withMessage("Order ID must be a positive integer"),
+    .isUUID()
+    .withMessage("Order ID must be a valid UUID"),
 
   body("payment_method")
     .trim()

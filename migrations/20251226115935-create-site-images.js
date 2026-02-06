@@ -5,9 +5,9 @@ module.exports = {
     await queryInterface.createTable('site_images', {
       image_id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
       img_url: {
         type: Sequelize.STRING,
@@ -26,7 +26,7 @@ module.exports = {
       },
       // Khóa ngoại Site
       site_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'historical_sites',
           key: 'site_id'
@@ -36,7 +36,7 @@ module.exports = {
       },
       // Khóa ngoại User (Người upload)
       user_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'users', // Đảm bảo tên bảng trong DB là 'users'
           key: 'id'

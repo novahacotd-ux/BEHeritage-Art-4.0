@@ -3,9 +3,9 @@ const { sequelize } = require('../../config/db');
 
 const AITool = sequelize.define('AITool', {
   tool_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   name: {
     type: DataTypes.STRING,
@@ -26,7 +26,7 @@ const AITool = sequelize.define('AITool', {
     defaultValue: 0
   },
   category_id: {
-    type: DataTypes.INTEGER
+    type: DataTypes.UUID
   }
 }, {
   tableName: 'ai_tools',

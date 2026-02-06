@@ -3,12 +3,12 @@ const { sequelize } = require('../../config/db');
 
 const Message = sequelize.define('Message', {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   sender_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: 'users',
@@ -16,7 +16,7 @@ const Message = sequelize.define('Message', {
     }
   },
   receiver_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: 'users',

@@ -10,7 +10,7 @@ const ForumPost = sequelize.define(
       primaryKey: true,
     },
     created_by: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     content: {

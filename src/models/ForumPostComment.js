@@ -14,7 +14,7 @@ const ForumPostComment = sequelize.define(
       allowNull: false,
     },
     user_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     parent_id: {

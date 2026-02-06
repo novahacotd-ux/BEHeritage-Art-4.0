@@ -1,56 +1,52 @@
-'use strict';
+﻿'use strict';
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
         await queryInterface.bulkInsert('styles', [
             {
-                style_id: 1,
+                style_id: uuidv4(),
                 name: 'Traditional',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                style_id: 2,
+                style_id: uuidv4(),
                 name: 'Contemporary',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                style_id: 3,
+                style_id: uuidv4(),
                 name: 'Minimalist',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                style_id: 4,
+                style_id: uuidv4(),
                 name: 'Ornate',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                style_id: 5,
+                style_id: uuidv4(),
                 name: 'Folk Art',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                style_id: 6,
+                style_id: uuidv4(),
                 name: 'Royal Court',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             }
         ], {});
-
-        // Update the sequence to start from 7 (after the last inserted ID)
-        await queryInterface.sequelize.query(
-            "SELECT setval('styles_style_id_seq', (SELECT MAX(style_id) FROM styles));"
-        );
     },
 
     async down(queryInterface, Sequelize) {

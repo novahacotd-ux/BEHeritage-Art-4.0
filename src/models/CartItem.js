@@ -3,12 +3,12 @@ const { sequelize } = require('../../config/db');
 
 const CartItem = sequelize.define('CartItem', {
     cart_item_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true
+        defaultValue: DataTypes.UUIDV4
     },
     cart_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: 'carts',
@@ -16,7 +16,7 @@ const CartItem = sequelize.define('CartItem', {
         }
     },
     product_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: 'products',

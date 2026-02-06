@@ -5,9 +5,9 @@ module.exports = {
     await queryInterface.createTable('historical_sites', {
       site_id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4
       },
       name: {
         type: Sequelize.STRING,
@@ -32,7 +32,7 @@ module.exports = {
       },
       // Khóa ngoại Region
       region_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'regions', 
           key: 'region_id'
@@ -42,7 +42,7 @@ module.exports = {
       },
       // Khóa ngoại Period
       period_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'historical_periods',
           key: 'period_id'

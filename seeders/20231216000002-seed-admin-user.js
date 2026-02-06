@@ -1,5 +1,6 @@
-'use strict';
+﻿'use strict';
 const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -16,18 +17,27 @@ module.exports = {
     // Hash password
     const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
-    // Insert admin user
-    const [userId] = await queryInterface.sequelize.query(
-      `INSERT INTO users (name, email, password, identity_number, gender, status, create_at) 
-       VALUES ('System Administrator', 'admin@heritage-art.com', '${hashedPassword}', 'ADMIN001', 'Male', 'Active', NOW()) 
-       RETURNING id;`
-    );
+    // Generate UUID for admin user
+    const adminUserId = uuidv4();
 
-    const adminUserId = userId[0].id;
+    // Insert admin user
+    await queryInterface.bulkInsert('users', [
+      {
+        id: adminUserId,
+        name: 'System Administrator',
+        email: 'admin@heritage-art.com',
+        password: hashedPassword,
+        identity_number: 'ADMIN001',
+        gender: 'Male',
+        status: 'Active',
+        create_at: new Date()
+      }
+    ]);
 
     // Assign ADMIN role to admin user
     await queryInterface.bulkInsert('user_roles', [
       {
+        id: uuidv4(),
         user_id: adminUserId,
         role_id: roleMap['ADMIN']
       }

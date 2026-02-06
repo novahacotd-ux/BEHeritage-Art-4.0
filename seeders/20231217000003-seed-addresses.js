@@ -1,4 +1,5 @@
-'use strict';
+﻿'use strict';
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
@@ -13,9 +14,9 @@ module.exports = {
 
             await queryInterface.bulkInsert('addresses', [
                 {
-                    address_id: 1,
+                    address_id: uuidv4(),
                     user_id: userId,
-                    address: '123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh',
+                    address: '123 Nguyán Huá, Quáºn 1, TP. Há" ChÃ Minh',
                     phone: '+84901234567',
                     is_default: true,
                     status: 'Active',
@@ -23,9 +24,9 @@ module.exports = {
                     updated_at: new Date()
                 },
                 {
-                    address_id: 2,
+                    address_id: uuidv4(),
                     user_id: userId,
-                    address: '456 Lê Lợi, Quận Hoàn Kiếm, Hà Nội',
+                    address: '456 LÃª Lái, Quáºn HoÃ n Kiáºm, HÃ  Nái',
                     phone: '+84907654321',
                     is_default: false,
                     status: 'Active',
@@ -40,3 +41,4 @@ module.exports = {
         await queryInterface.bulkDelete('addresses', null, {});
     }
 };
+

@@ -1,56 +1,52 @@
-'use strict';
+﻿'use strict';
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
     async up(queryInterface, Sequelize) {
         await queryInterface.bulkInsert('topics', [
             {
-                topic_id: 1,
+                topic_id: uuidv4(),
                 name: 'Vietnamese Heritage',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                topic_id: 2,
+                topic_id: uuidv4(),
                 name: 'Buddhism & Spirituality',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                topic_id: 3,
+                topic_id: uuidv4(),
                 name: 'Nature & Landscape',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                topic_id: 4,
+                topic_id: uuidv4(),
                 name: 'Daily Life & Culture',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                topic_id: 5,
+                topic_id: uuidv4(),
                 name: 'Mythology & Legends',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             },
             {
-                topic_id: 6,
+                topic_id: uuidv4(),
                 name: 'Prosperity & Fortune',
                 status: 'Active',
                 created_at: new Date(),
                 updated_at: new Date()
             }
         ], {});
-
-        // Update the sequence to start from 7 (after the last inserted ID)
-        await queryInterface.sequelize.query(
-            "SELECT setval('topics_topic_id_seq', (SELECT MAX(topic_id) FROM topics));"
-        );
     },
 
     async down(queryInterface, Sequelize) {

@@ -3,12 +3,12 @@ const { sequelize } = require('../../config/db');
 
 const Payment = sequelize.define('Payment', {
     payment_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true
+        defaultValue: DataTypes.UUIDV4
     },
     order_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: 'orders',

@@ -3,9 +3,9 @@ const { sequelize } = require('../../config/db');
 
 const AICategory = sequelize.define('AICategory', {
   category_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   key: { // Ví dụ: 'IMAGE_GEN', 'TEXT_GEN'
     type: DataTypes.STRING,

@@ -3,9 +3,9 @@ const { sequelize } = require('../../config/db');
 
 const HistoricalPeriod = sequelize.define('HistoricalPeriod', {
   period_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true
+    defaultValue: DataTypes.UUIDV4
   },
   name: {
     type: DataTypes.STRING,
