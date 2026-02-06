@@ -24,7 +24,7 @@ const getAllTopics = async (req, res, next) => {
             where,
             limit: parseInt(limit),
             offset: parseInt(offset),
-            order: [['created_at', 'DESC']]
+            order: [['topic_id', 'DESC']]
         });
 
         res.status(200).json({
@@ -63,7 +63,7 @@ const getAllTopicsAdmin = async (req, res, next) => {
             where,
             limit: parseInt(limit),
             offset: parseInt(offset),
-            order: [['status', 'ASC'], ['created_at', 'DESC']]
+            order: [['status', 'ASC']]
         });
 
         res.status(200).json({

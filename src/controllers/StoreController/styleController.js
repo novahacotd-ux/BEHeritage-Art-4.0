@@ -24,7 +24,7 @@ const getAllStyles = async (req, res, next) => {
             where,
             limit: parseInt(limit),
             offset: parseInt(offset),
-            order: [['created_at', 'DESC']]
+            order: [['style_id', 'DESC']]
         });
 
         res.status(200).json({
@@ -63,7 +63,7 @@ const getAllStylesAdmin = async (req, res, next) => {
             where,
             limit: parseInt(limit),
             offset: parseInt(offset),
-            order: [['status', 'ASC'], ['created_at', 'DESC']]
+            order: [['status', 'ASC']]
         });
 
         res.status(200).json({
