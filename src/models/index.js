@@ -37,7 +37,7 @@ const HistoricalPeriod = require("./HistoricalPeriod");
 const HistoricalSite = require("./HistoricalSite");
 const SiteImage = require("./SiteImage");
 //-------------------------------------//
-const Celebrities= require("./celebrities")
+const Celebrities= require("./Celebrities")
 const HistoricalEvents= require('./HistoricalEvent')
 
 // 3. AI Tools Module (MỚI)
