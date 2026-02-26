@@ -21,9 +21,9 @@ router.get('/:id', celebritiesController.getCelebrity);
 router.post('/:id',
     authenticate, 
     authorize('ADMIN'), 
+    upload.single('file'),
     celebritiesValidation,
     validate,
-    upload.single('file'),
     celebritiesController.createCelebrity
 )
 

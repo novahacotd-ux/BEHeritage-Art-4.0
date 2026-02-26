@@ -19,10 +19,10 @@ router.get('/:id/detail', periodController.getPeriodDetail);
 */
 router.post('/', 
     authenticate, 
-    periodValidation,
-    validate, 
     authorize('ADMIN'),
     upload.single('file'), 
+    periodValidation,
+    validate, 
     periodController.createPeriod );
 /**
  * @route   POST /api/periods/
