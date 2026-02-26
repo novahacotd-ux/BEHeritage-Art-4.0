@@ -29,6 +29,14 @@ const ForumPost = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    category:{
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    title:{
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     status: {
       type: DataTypes.STRING(20),
       defaultValue: "Active",

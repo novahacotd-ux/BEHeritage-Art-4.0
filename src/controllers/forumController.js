@@ -13,7 +13,7 @@ const { Op } = require("sequelize");
 
 const createPost = async (req, res, next) => {
   try {
-    const { content, tag } = req.body;
+    const { content, tag, category, title } = req.body;
     const userId = req.user.id;
 
     if (!content) {
@@ -26,6 +26,8 @@ const createPost = async (req, res, next) => {
       created_by: userId,
       content,
       tag,
+      category,
+      title,
       status: "Active",
     });
 
