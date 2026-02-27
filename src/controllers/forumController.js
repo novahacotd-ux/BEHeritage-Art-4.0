@@ -6,6 +6,7 @@ const {
   ForumLike,
   User,
 } = require("../models");
+const ForumCategory = require("../models/ForumCategory");
 const { uploadToCloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 
@@ -13,7 +14,7 @@ const { Op } = require("sequelize");
 
 const createPost = async (req, res, next) => {
   try {
-    const { content, tag, category, title } = req.body;
+    const { content, tag, category_id, title } = req.body;
     const userId = req.user.id;
 
     if (!content) {
@@ -26,7 +27,7 @@ const createPost = async (req, res, next) => {
       created_by: userId,
       content,
       tag,
-      category,
+      category_id,
       title,
       status: "Active",
     });
@@ -74,6 +75,11 @@ const createPost = async (req, res, next) => {
           as: "author",
           attributes: ["id", "name", "email", "avatar"],
         },
+        {
+          model: ForumCategory,
+          as: 'post_category',
+          attributes: ["category_id", "name"],
+        }
       ],
     });
 
@@ -85,7 +91,7 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, search, tag, status } = req.query;
+    const { page = 1, limit = 10, search, tag, status, category  } = req.query;
     const offset = (page - 1) * limit;
 
     const whereClause = {};
@@ -108,7 +114,10 @@ const getPosts = async (req, res, next) => {
     }
 
     if (search) {
-      whereClause.content = { [Op.like]: `%${search}%` };
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        { content: { [Op.like]: `%${search}%` } },
+      ];
     }
     if (tag) {
       whereClause.tag = tag;

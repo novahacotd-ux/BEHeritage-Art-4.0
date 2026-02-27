@@ -47,45 +47,31 @@ exports.getAllPeriods = async (req, res) => {
 exports.getPeriodByID = async( req, res)=> {
     try {
         const { id } = req.params;
-        const period = await HistoricalPeriod.findOne({
-            where: { period_id: id },
-            attributes: [
-                'period_id',
-                'name',
-                'start_year',
-                'end_year',
-                'description',
-                'thumbnail_url'
-            ],
-            include: [
-                {
-                model: Celebrities,
-                as: 'celebrities',
-                attributes: ['celebrities_id', 'name','bio', 'thumbnail_url']
-                },
-                {
-                    model: HistoricalEvents,
-                    as: "historical_event",
-                    attributes: ['event_id','name', 'description',  'start_year','end_year',]
-                }
-            ], 
-            order: [['start_year', 'ASC']]
-
-            });
-
+        const period = await HistoricalPeriod.findByPk(id)
         if (!period) {
-        return res.status(404).json({
-            success: false,
-            message: 'Period not found'
-        });
+            return res.status(404).json({
+                success: false,
+                message: 'Period not found'
+            });
         }
+        const event= await HistoricalEvents.findAll({
+            where: {period_id: id},
+            attributes: ['event_id','name', 'description','start_year','end_year'],
+            order: [['start_year', 'ASC']]
+        })
+        const celebrities = await Celebrities.findAll({
+            where: { period_id: id },
+            attributes: ['celebrities_id', 'name', 'bio', 'thumbnail_url']
+        });
 
         res.json({
         success: true,
-        data: period
+        data: {
+            celebrities,
+            event
+        }
         });
         
-
     }catch(error) {
         console.error('Error fetching period by id:', error);
         res.status(500).json({

@@ -21,6 +21,7 @@ const CartItem = require("./CartItem");
 const Order = require("./Order");
 const OrderDetail = require("./OrderDetail");
 const Payment = require("./Payment");
+const ForumCategory=require('./ForumCategory')
 
 // --- IMPORT MODELS ---
 // 1. Auth Module
@@ -488,6 +489,7 @@ Celebrities.belongsTo(HistoricalPeriod, {
    foreignKey: 'period_id',
     as: 'period'
 });
+
 HistoricalPeriod.hasMany(HistoricalEvents, {
     foreignKey: 'period_id',
     as: 'historical_event'
@@ -496,6 +498,16 @@ HistoricalEvents.belongsTo(HistoricalPeriod, {
    foreignKey: 'period_id',
     as: 'period'
 })
+
+ForumCategory.hasMany(ForumPost, {
+  foreignKey: 'category_id',
+  as: 'posts'
+});
+
+ForumPost.belongsTo(ForumCategory, {
+  foreignKey: 'category_id',
+  as: 'post_category'
+});
 
 
 // Export models and sequelize instance
@@ -544,4 +556,5 @@ module.exports = {
   LocationInteraction,
   ExperiencePost,        
   ExperienceComment, 
+  ForumCategory
 };

@@ -29,9 +29,13 @@ const ForumPost = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    category:{
-      type: DataTypes.STRING,
-      allowNull: false
+    category_id:{
+      type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'forum_category',
+            key: 'category_id'
+        },
     },
     title:{
       type: DataTypes.STRING,
