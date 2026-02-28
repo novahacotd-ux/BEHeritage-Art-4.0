@@ -10,6 +10,8 @@ const ForumPost = require("./ForumPost");
 const ForumPostImage = require("./ForumPostImage");
 const ForumPostVideo = require("./ForumPostVideo");
 const ForumPostComment = require("./ForumPostComment");
+const ForumCategory=require('./ForumCategory')
+const ForumTag=require('./ForumTag')
 const ForumLike = require("./ForumLike");
 const Category = require("./Category");
 const Topic = require("./Topic");
@@ -21,7 +23,7 @@ const CartItem = require("./CartItem");
 const Order = require("./Order");
 const OrderDetail = require("./OrderDetail");
 const Payment = require("./Payment");
-const ForumCategory=require('./ForumCategory')
+const Tags= require('./Tags')
 
 // --- IMPORT MODELS ---
 // 1. Auth Module
@@ -240,6 +242,29 @@ EventRegister.belongsTo(User, {
 // User - ForumPost (1-N)
 User.hasMany(ForumPost, { foreignKey: "created_by", as: "posts" });
 ForumPost.belongsTo(User, { foreignKey: "created_by", as: "author" });
+
+// MANY TO MANY
+ForumPost.belongsToMany(Tags, {
+  through: ForumTag,
+  foreignKey: 'post_id',
+  otherKey: 'tag_id',
+  as: 'tags'
+});
+
+Tags.belongsToMany(ForumPost, {
+  through: ForumTag,
+  foreignKey: 'tag_id',
+  otherKey: 'post_id',
+  as: 'posts'
+});
+
+// //Forum-ForumTag(1-N)
+// ForumPost.hasMany(ForumTag, {foreignKey: 'post_id', as: 'forum_tags'})
+// ForumTag.belongsTo(ForumPost, {foreignKey: 'post_id', as: 'post'})
+
+// //Tag-ForumTag(1-N)
+// Tags.hasMany(ForumTag, {foreignKey: 'tag_id', as: 'forum_tags'})
+// ForumTag.belongsTo(Tags, {foreignKey: 'tag_id', as: 'tag'})
 
 // ForumPost - ForumPostImage (1-N)
 ForumPost.hasMany(ForumPostImage, { foreignKey: "post_id", as: "images" });
@@ -556,5 +581,7 @@ module.exports = {
   LocationInteraction,
   ExperiencePost,        
   ExperienceComment, 
-  ForumCategory
+  ForumCategory, 
+  Tags,
+  ForumTag
 };

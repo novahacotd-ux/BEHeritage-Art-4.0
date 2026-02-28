@@ -30,6 +30,7 @@ const mediaRoutes = require("./mediaRoutes");
 const router = express.Router();
 const experiencePostRoutes = require('./experiencePostRoutes');
 const experienceCommentRoutes = require('./experienceCommentRoutes');
+const ForumCategoryRoutes= require('./forumCategoryRoutes')
 
 
 // Health check endpoint
@@ -77,5 +78,6 @@ router.use("/orders", orderRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/celebrities", celebrities);
 router.use("/history-event", historicalEvents);
+router.use("/forum-category", ForumCategoryRoutes);
 
 module.exports = router;

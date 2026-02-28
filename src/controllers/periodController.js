@@ -1,6 +1,21 @@
 const { HistoricalPeriod, HistoricalSite, SiteImage,HistoricalEvents, Celebrities  } = require('../models');
 const { uploadToCloudinary } = require('../utils/cloudinary');
 
+function parseYear(yearStr) {
+  if (!yearStr) return null;
+
+  const str = yearStr.toString().trim().toUpperCase();
+
+  if (str.includes("TCN")) {
+    return -parseInt(str.replace("TCN", "").trim());
+  }
+
+  if (str.includes("SCN")) {
+    return parseInt(str.replace("SCN", "").trim());
+  }
+
+  return parseInt(str);
+}
 // Get all historical periods
 exports.getAllPeriods = async (req, res) => {
     try {
@@ -19,12 +34,16 @@ exports.getAllPeriods = async (req, res) => {
         // Manually add site count for each period
         const periodsWithCount = await Promise.all(
             periods.map(async (period) => {
+                const eventCount= await HistoricalEvents.count({
+                    where: {period_id: period.period_id}
+                })
                 const siteCount = await HistoricalSite.count({
                     where: { period_id: period.period_id }
                 });
                 return {
                     ...period.toJSON(),
-                    site_count: siteCount.toString()
+                    site_count: siteCount.toString(),
+                    event_count: eventCount.toString()
                 };
             })
         );
@@ -132,6 +151,8 @@ exports.createPeriod = async (req, res) => {
     try {
         const { name, start_year, end_year, description } = req.body;
         const media = req.file
+        const start=parseYear(start_year)
+        const end= parseYear(end_year)
 
         if (/^\d+$/.test(name.trim())) {
             return res.status(400).json({
@@ -139,7 +160,7 @@ exports.createPeriod = async (req, res) => {
                 message: 'Period name cannot contain only numbers'
             });
         }
-        if(start_year> end_year) {
+        if(start> end) {
             return res.status(400).json({
                 success: false,
                 message: 'start_year must be less than or equal to end_year'
@@ -155,8 +176,8 @@ exports.createPeriod = async (req, res) => {
 
         const newPeriod = await HistoricalPeriod.create({
             name,
-            start_year,
-            end_year,
+            start_year: start,
+            end_year: end,
             description,
             thumbnail_url
         });
@@ -182,7 +203,9 @@ exports.updatePeriod = async (req, res) => {
         const { id } = req.params;
         const { name, start_year, end_year, description } = req.body;
         const media = req.file
-       
+        const start=parseYear(start_year)
+        const end= parseYear(end_year)
+
         const period = await HistoricalPeriod.findByPk(id);
         if (!period) {
             return res.status(404).json({
@@ -190,7 +213,7 @@ exports.updatePeriod = async (req, res) => {
                 message: 'Period not found'
             });
         }
-        if(start_year> end_year) {
+        if(start> end) {
             return res.status(400).json({
                 success: false,
                 message: 'start_year must be less than or equal to end_year'
@@ -206,8 +229,8 @@ exports.updatePeriod = async (req, res) => {
 
         await period.update({
             name: name ?? period.name , 
-            start_year: start_year?? period.start_year, 
-            end_year: end_year ?? period.end_year, 
+            start_year: start?? period.start_year, 
+            end_year: end ?? period.end_year, 
             description: description ?? period.description, 
             thumbnail_url: thumbnail_url?? period.thumbnail_url
          });

@@ -5,8 +5,10 @@ const {
   ForumPostComment,
   ForumLike,
   User,
+  ForumCategory,
+  Tags,
+  ForumTag
 } = require("../models");
-const ForumCategory = require("../models/ForumCategory");
 const { uploadToCloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 
@@ -23,15 +25,39 @@ const createPost = async (req, res, next) => {
         .json({ success: false, message: "Content is required" });
     }
 
+    const Tagid=[]
+    if(tag) {
+      for(const tagName of tag) {
+        let tagRecord= await Tags.findOne({
+          where:{ name: tagName}
+        })
+        if (!tagRecord) {
+          tagRecord = await Tags.create({
+            name: tagName
+          })
+        }
+        Tagid.push(tagRecord.id)
+      }
+    }
+
     const post = await ForumPost.create({
       created_by: userId,
       content,
-      tag,
       category_id,
       title,
       status: "Active",
     });
 
+    if(Tagid.length>0) {
+      await Promise.all(
+        Tagid.map(async(id)=> {
+          await ForumTag.create( {
+            tag_id: id,
+            post_id: post.id,
+        })
+      })
+      )
+    }
     // Handle Media (Images and Videos)
     // Assuming req.files.images and req.files.videos if multiple fields
     // Or just check req.files array and filter by mimetype if generic 'media' field
@@ -61,7 +87,7 @@ const createPost = async (req, res, next) => {
               post_id: post.id,
               video_url: result.secure_url,
             });
-          })
+          }) 
         );
       }
     }
@@ -74,6 +100,12 @@ const createPost = async (req, res, next) => {
           model: User,
           as: "author",
           attributes: ["id", "name", "email", "avatar"],
+        },
+        {
+          model: Tags,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
         },
         {
           model: ForumCategory,
@@ -91,7 +123,7 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, search, tag, status, category  } = req.query;
+    const { page = 1, limit = 10, search, tag, status, category_id  } = req.query;
     const offset = (page - 1) * limit;
 
     const whereClause = {};
@@ -133,6 +165,17 @@ const getPosts = async (req, res, next) => {
           as: "author",
           attributes: ["id", "name", "avatar"],
         },
+        {
+          model: Tags,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        },
+        {
+          model: ForumCategory,
+          as: 'post_category',
+          attributes: ["category_id", "name"],
+        }
         // Optimizing: maybe not include all comments, just count?
         // Or include first few? For now, standard list.
       ],
@@ -169,6 +212,17 @@ const getPostById = async (req, res, next) => {
           as: "author",
           attributes: ["id", "name", "avatar"],
         },
+        {
+          model: ForumCategory,
+          as: 'post_category',
+          attributes: ["category_id", "name"],
+        },
+         {
+              model: Tags,
+              as: 'tags',
+              attributes: ['id', 'name'],
+              through: { attributes: [] }
+            },
         {
           model: ForumPostComment,
           as: "comments",

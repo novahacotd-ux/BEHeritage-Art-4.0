@@ -693,13 +693,11 @@ const periodValidation = [
   body("start_year")
     .notEmpty()
     .withMessage("start_year is required")
-    .isInt()
     .withMessage("start_year must be an integer"),
 
   body("end_year")
     .notEmpty()
     .withMessage("end_year is required")
-    .isInt()
     .withMessage("end_year must be an integer"),
 ];
 

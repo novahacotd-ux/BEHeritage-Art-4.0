@@ -1,12 +1,28 @@
 const {HistoricalEvents, HistoricalPeriod }= require('../models');
 const { uploadToCloudinary } = require('../utils/cloudinary');
 
+function parseYear(yearStr) {
+  if (!yearStr) return null;
+
+  const str = yearStr.toString().trim().toUpperCase();
+
+  if (str.includes("TCN")) {
+    return -parseInt(str.replace("TCN", "").trim());
+  }
+
+  if (str.includes("SCN")) {
+    return parseInt(str.replace("SCN", "").trim());
+  }
+
+  return parseInt(str);
+}
+
 
 const getHistoryEvent = async(req, res, next)=> {
     const {id}= req.params
     try {
          const historicalEvent = await HistoricalEvents.findAll({
-           where: {period_id: id},
+           where: {event_id: id},
            include: [{
                 model: HistoricalPeriod,
                 as: 'period',
@@ -37,7 +53,8 @@ const createHistoryEvent = async(req, res)=>  {
     const { id }= req.params;
     const { name, start_year, end_year, description} = req.body;
     const media= req.file;
-
+    const start=parseYear(start_year)
+    const end= parseYear(end_year)
     try{
         const period = await HistoricalPeriod.findByPk(id)
         if(!period) {
@@ -52,14 +69,14 @@ const createHistoryEvent = async(req, res)=>  {
             thumbnail_url= uploadMedia.secure_url;
         }
 
-        if(start_year> end_year) {
+        if(start> end) {
             return res.status(400).json({
                 success: false,
                 message: 'start_year must be less than or equal to end_year'
             });
         }
 
-        if(start_year < period.start_year ||end_year> period.end_year ) {
+        if(start < period.start_year ||end> period.end_year ) {
             return res.status(400).json({
                 success: false,
                 message: `Event years must be within period (${period.start_year} - ${period.end_year})`
@@ -69,8 +86,8 @@ const createHistoryEvent = async(req, res)=>  {
         const newHistoryEvent= await HistoricalEvents.create({
             period_id: id,
             name,
-            start_year,
-            end_year,
+            start_year:start,
+            end_year:end,
             description,
             thumbnail_url
         });
@@ -92,7 +109,8 @@ const updateHistoryEvent = async(req, res)=> {
     const { id }= req.params;
     const { name, start_year, end_year, description, period_id } = req.body; 
     const media= req.file;
-    
+    const start=parseYear(start_year)
+    const end= parseYear(end_year)
 
     try{
         const HistoryEvents= await HistoricalEvents.findByPk(id)
@@ -110,8 +128,8 @@ const updateHistoryEvent = async(req, res)=> {
         }
         await HistoryEvents.update({
             name: name ?? HistoryEvents.name,
-            start_year: start_year ?? HistoryEvents.start_year,
-            end_year: end_year ?? HistoryEvents.end_year,
+            start_year: start ?? HistoryEvents.start_year,
+            end_year: end ?? HistoryEvents.end_year,
             description: description ?? HistoryEvents.description,
             thumbnail_url: thumbnail_url ?? HistoryEvents.thumbnail_url,
             period_id: period_id ?? HistoryEvents.period_id

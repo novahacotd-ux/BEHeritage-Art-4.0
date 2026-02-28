@@ -25,10 +25,6 @@ const ForumPost = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    tag: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
     category_id:{
       type: DataTypes.UUID,
         allowNull: false,

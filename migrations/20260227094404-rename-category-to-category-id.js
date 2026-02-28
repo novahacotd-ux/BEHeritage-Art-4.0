@@ -5,15 +5,10 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.addColumn('forum_posts', 'category_id', {
       type: Sequelize.UUID,
-      allowNull: true, // tạm thời cho null
+      allowNull: true,
     });
-
-    // ⚠️ Nếu bạn có mapping dữ liệu cũ → xử lý ở đây
-
-    // 2. Xóa column cũ
     await queryInterface.removeColumn('forum_posts', 'category');
 
-    // 3. Set NOT NULL + FK
     await queryInterface.changeColumn('forum_posts', 'category_id', {
       type: Sequelize.UUID,
       allowNull: false,
