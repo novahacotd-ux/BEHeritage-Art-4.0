@@ -18,20 +18,35 @@ router.get('/:id', historicalEventController.getHistoryEvent);
  * @desc    Add a new history-event to a historical period
  * @access  Admin only routes
 */
-router.post('/:id',authenticate,upload.single('file'), validate, periodValidation ,authorize('ADMIN'), historicalEventController.createHistoryEvent)
+router.post('/:id',
+    authenticate,
+    upload.array('images', 100), 
+    validate, 
+    periodValidation ,
+    authorize('ADMIN'), 
+    historicalEventController.createHistoryEvent
+)
 
 /**
  * @route   PUT /api/history-event/:id
  * @desc    Update a history-event information
  * @access  Admin only routes
 */
-router.put('/:id',authenticate, authorize('ADMIN'), historicalEventController.updateHistoryEvent)
+router.put('/:id',
+    authenticate, 
+    authorize('ADMIN'), 
+    historicalEventController.updateHistoryEvent
+)
 
 /**
  * @route   DELETE /api/history-event/:id
  * @desc    Delete a history-event
  * @access  Admin only routes
 */
-router.delete('/:id',authenticate, authorize('ADMIN'), historicalEventController.deleteHistoryEvent)
+router.delete('/:id',
+    authenticate, 
+    authorize('ADMIN'), 
+    historicalEventController.deleteHistoryEvent
+)
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const {HistoricalEvents, HistoricalPeriod }= require('../models');
+const {HistoricalEvents, HistoricalPeriod, HistoryEventImages }= require('../models');
 const { uploadToCloudinary } = require('../utils/cloudinary');
 
 function parseYear(yearStr) {
@@ -23,11 +23,19 @@ const getHistoryEvent = async(req, res, next)=> {
     try {
          const historicalEvent = await HistoricalEvents.findAll({
            where: {event_id: id},
-           include: [{
+           include: 
+            [{
                 model: HistoricalPeriod,
                 as: 'period',
                 attributes: ['period_id', 'name','start_year', 'end_year']
-            }]
+            },
+            {
+                model:HistoryEventImages,
+                as:'history_event_images',
+                attributes: ['id','thumbnail_url']
+            }
+        ]
+            
         });
         if(!historicalEvent) {
             return res.status(404).json({
@@ -52,7 +60,6 @@ const getHistoryEvent = async(req, res, next)=> {
 const createHistoryEvent = async(req, res)=>  {
     const { id }= req.params;
     const { name, start_year, end_year, description} = req.body;
-    const media= req.file;
     const start=parseYear(start_year)
     const end= parseYear(end_year)
     try{
@@ -62,12 +69,7 @@ const createHistoryEvent = async(req, res)=>  {
                 success: false,
                 message: 'period not found'
             });
-        }
-        let thumbnail_url=null
-        if(media) {
-            const uploadMedia= await uploadToCloudinary(media)
-            thumbnail_url= uploadMedia.secure_url;
-        }
+        } 
 
         if(start> end) {
             return res.status(400).json({
@@ -76,21 +78,35 @@ const createHistoryEvent = async(req, res)=>  {
             });
         }
 
-        if(start < period.start_year ||end> period.end_year ) {
+        if(start < period.start_year ||end > period.end_year ) {
             return res.status(400).json({
                 success: false,
                 message: `Event years must be within period (${period.start_year} - ${period.end_year})`
             });
         }
-
-        const newHistoryEvent= await HistoricalEvents.create({
+        
+        const newHistoryEvent = await HistoricalEvents.create({
             period_id: id,
             name,
             start_year:start,
             end_year:end,
             description,
-            thumbnail_url
         });
+
+        if (req.files) {    
+            await Promise.all(
+                req.files.map(async (file) => {
+                    const result = await uploadToCloudinary(file, {
+                    resource_type: "image",
+                    });
+                    await HistoryEventImages.create({
+                    event_id: newHistoryEvent.event_id,
+                    thumbnail_url: result.secure_url,
+                    });
+                })
+            );
+        }
+
         res.status(201).json({
             success: true,
             message: 'Historical event added successfully',

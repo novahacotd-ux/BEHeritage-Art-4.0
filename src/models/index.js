@@ -42,6 +42,7 @@ const SiteImage = require("./SiteImage");
 //-------------------------------------//
 const Celebrities= require("./Celebrities")
 const HistoricalEvents= require('./HistoricalEvent')
+const HistoryEventImages=require('./HistoryEventImages')
 
 // 3. AI Tools Module (MỚI)
 const AICategory = require("./AICategory");
@@ -524,6 +525,15 @@ HistoricalEvents.belongsTo(HistoricalPeriod, {
     as: 'period'
 })
 
+HistoricalEvents.hasMany(HistoryEventImages, {
+  foreignKey: 'event_id',
+  as:'history_event_images'
+})
+HistoryEventImages.belongsTo(HistoricalEvents, {
+  foreignKey: 'event_id',
+  as:'historical_event'
+})
+
 ForumCategory.hasMany(ForumPost, {
   foreignKey: 'category_id',
   as: 'posts'
@@ -549,6 +559,7 @@ module.exports = {
   HistoricalSite,
   Celebrities,//
   HistoricalEvents,//
+  HistoryEventImages,
   SiteImage,
   AICategory,
   AITool,

@@ -34,14 +34,19 @@ exports.getAllPeriods = async (req, res) => {
         // Manually add site count for each period
         const periodsWithCount = await Promise.all(
             periods.map(async (period) => {
+                const celebrityCount= await Celebrities.count({
+                    where: {period_id: period.period_id}
+                })
                 const eventCount= await HistoricalEvents.count({
                     where: {period_id: period.period_id}
                 })
                 const siteCount = await HistoricalSite.count({
                     where: { period_id: period.period_id }
                 });
+                
                 return {
                     ...period.toJSON(),
+                    celebrity_count: celebrityCount.toString(),
                     site_count: siteCount.toString(),
                     event_count: eventCount.toString()
                 };
@@ -75,7 +80,7 @@ exports.getPeriodByID = async( req, res)=> {
         }
         const event= await HistoricalEvents.findAll({
             where: {period_id: id},
-            attributes: ['event_id','name', 'description','start_year','end_year'],
+            attributes: ['event_id','name','start_year','end_year'],
             order: [['start_year', 'ASC']]
         })
         const celebrities = await Celebrities.findAll({

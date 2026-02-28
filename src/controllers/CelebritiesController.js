@@ -6,7 +6,7 @@ const getCelebrity = async(req, res, next)=> {
     const {id}= req.params
     try {
         const Celebritie = await Celebrities.findAll({
-            where: {period_id: id},
+            where: {celebrities_id: id},
             include: [{
                     model: HistoricalPeriod,
                     as: 'period',

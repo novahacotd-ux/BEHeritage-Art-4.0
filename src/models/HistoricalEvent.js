@@ -33,9 +33,6 @@ const HistoricalEvent = sequelize.define(
     description: {
         type: DataTypes.TEXT
     },
-    thumbnail_url: {
-        type: DataTypes.STRING
-    }
     },
     {
         tableName: 'historical_events',
