@@ -1,5 +1,16 @@
 require("dotenv").config();
+const appInsights = require('applicationinsights')
+
+appInsights
+  .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+  .setAutoCollectRequests(true)
+  .setAutoCollectPerformance(true)
+  .setAutoCollectExceptions(true)
+  .setAutoCollectConsole(true, true)
+  .setSendLiveMetrics(true)
+  .start();
 const express = require("express");
+
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const http = require("http");
@@ -10,6 +21,7 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 const server = http.createServer(app);
+
 
 // Socket.IO setup
 const io = new Server(server, {
@@ -115,6 +127,12 @@ io.on("connection", (socket) => {
   });
 });
 
+
+const client = appInsights.defaultClient;
+
+client.trackTrace({ message: "Server started" });
+client.trackException({ exception: new Error("Test error") });
+
 // API Routes
 app.use("/api", routes);
 
@@ -140,6 +158,8 @@ const startServer = async () => {
     // Start listening
     server.listen(PORT, () => {
       console.log(`
+    
+    Connection string: ${process.env.APPINSIGHTS_CONNECTION_STRING}
 🚀 Server is running on port ${PORT}
 📝 Environment: ${process.env.NODE_ENV || "development"}
 📚 API Documentation: http://localhost:${PORT}/api-docs
@@ -156,5 +176,7 @@ const startServer = async () => {
 };
 
 startServer();
+
+
 
 module.exports = { app, io };
