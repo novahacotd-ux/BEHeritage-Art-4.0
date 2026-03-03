@@ -12,7 +12,7 @@ const ForumPostVideo = require("./ForumPostVideo");
 const ForumPostComment = require("./ForumPostComment");
 const ForumCategory=require('./ForumCategory')
 const ForumTag=require('./ForumTag')
-const ForumLike = require("./ForumLike");
+const ForumReactions = require("./ForumLike");
 const Category = require("./Category");
 const Topic = require("./Topic");
 const Style = require("./Style");
@@ -182,7 +182,6 @@ Review.belongsTo(User, {
   as: "user",
 }); // alias 'user' để hiện tên người comment
 
-
 // News and NewsImage associations
 News.hasMany(NewsImage, {
   foreignKey: "news_id",
@@ -294,8 +293,9 @@ ForumPostComment.belongsTo(ForumPostComment, {
 });
 
 // Likes
-User.hasMany(ForumLike, { foreignKey: "user_id", as: "likes" });
-ForumLike.belongsTo(User, { foreignKey: "user_id", as: "user" });
+User.hasMany(ForumReactions, { foreignKey: "user_id", as: "likes" });
+ForumReactions.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
 // Category and Product associations
 Category.hasMany(Product, {
   foreignKey: "category_id",
@@ -575,7 +575,7 @@ module.exports = {
   ForumPostImage,
   ForumPostVideo,
   ForumPostComment,
-  ForumLike,
+  ForumReactions,
   Category,
   Topic,
   Style,

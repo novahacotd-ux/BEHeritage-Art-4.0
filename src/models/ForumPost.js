@@ -25,6 +25,10 @@ const ForumPost = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    dislikes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     category_id:{
       type: DataTypes.UUID,
         allowNull: false,

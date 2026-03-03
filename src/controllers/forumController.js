@@ -1,43 +1,54 @@
+const { parse } = require("dotenv");
 const {
   ForumPost,
   ForumPostImage,
   ForumPostVideo,
   ForumPostComment,
-  ForumLike,
   User,
   ForumCategory,
   Tags,
-  ForumTag
+  ForumTag,
+  ForumReactions,
 } = require("../models");
 const { uploadToCloudinary } = require("../utils/cloudinary");
-const { Op } = require("sequelize");
+const { Op , fn, col, Sequelize} = require("sequelize");
 
 // --- Posts ---
 
 const createPost = async (req, res, next) => {
   try {
-    const { content, tag, category_id, title } = req.body;
+    let { content,tag ,category_id, title } = req.body;
     const userId = req.user.id;
+
+    if (tag && typeof tag === "string") {
+      tag = JSON.parse(tag);
+    } 
 
     if (!content) {
       return res
         .status(400)
         .json({ success: false, message: "Content is required" });
     }
-
     const Tagid=[]
-    if(tag) {
-      for(const tagName of tag) {
-        let tagRecord= await Tags.findOne({
-          where:{ name: tagName}
+
+    for(const tagName of tag) {
+      let tagRecord= await Tags.findOne({
+        where:{ name: tagName}
+      })
+      if (!tagRecord) {
+        tagRecord = await Tags.create({
+          name: tagName
         })
-        if (!tagRecord) {
-          tagRecord = await Tags.create({
-            name: tagName
-          })
-        }
-        Tagid.push(tagRecord.id)
       }
+      Tagid.push(tagRecord.id)
+    }
+
+    const iscategory= await ForumCategory.findByPk(category_id);
+
+    if (!iscategory) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
     }
 
     const post = await ForumPost.create({
@@ -123,7 +134,7 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, search, tag, status, category_id  } = req.query;
+    const { page = 1, limit = 10, search, tag, status  } = req.query;
     const offset = (page - 1) * limit;
 
     const whereClause = {};
@@ -151,8 +162,27 @@ const getPosts = async (req, res, next) => {
         { content: { [Op.like]: `%${search}%` } },
       ];
     }
+    let postIds = null;
+
     if (tag) {
-      whereClause.tag = tag;
+      const postsWithTag = await ForumPost.findAll({
+        attributes: ["id"],
+        include: [
+          {
+            model: Tags,
+            as: "tags",
+            where: { name: tag },
+            attributes: [],
+            through: { attributes: [] },
+            required: true,
+          },
+        ],
+      });
+
+      postIds = postsWithTag.map(p => p.id);
+    }
+    if (postIds) {
+      whereClause.id = postIds;
     }
 
     const { count, rows } = await ForumPost.findAndCountAll({
@@ -166,10 +196,17 @@ const getPosts = async (req, res, next) => {
           attributes: ["id", "name", "avatar"],
         },
         {
+          model: ForumPostComment,
+          as: "comments",
+          attributes: [],
+          required: false
+        },
+        {
           model: Tags,
           as: 'tags',
           attributes: ['id', 'name'],
-          through: { attributes: [] }
+          through: { attributes: [] },
+          required: false
         },
         {
           model: ForumCategory,
@@ -184,15 +221,43 @@ const getPosts = async (req, res, next) => {
       offset: parseInt(offset),
       distinct: true, // For correct count with includes
     });
+    const activeCount = await ForumPost.count({
+      where: { 
+        ...whereClause,  // giữ các filter hiện tại nếu cần
+        status: "active" 
+      },
+    });
+
+    const commentCounts = await ForumPostComment.findAll({
+      where: { post_id: postIds },
+      attributes: [
+        "post_id",
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "comment_count"]
+      ],
+      group: ["post_id"],
+      raw: true,
+    });
+
+    const countMap = commentCounts.reduce((acc, c) => {
+      acc[c.post_id] = parseInt(c.comment_count);
+      return acc;
+    }, {});
+
+    const result = rows.map(post => ({
+      ...post.toJSON(),
+      comment_count: countMap[post.id] || 0,
+    }));
+
 
     res.status(200).json({
       success: true,
-      data: rows,
+      data: result,
       pagination: {
         total: count,
         page: parseInt(page),
         limit: parseInt(limit),
         totalPages: Math.ceil(count / limit),
+        active_count: activeCount,
       },
     });
   } catch (error) {
@@ -344,65 +409,175 @@ const deleteComment = async (req, res, next) => {
 
 // --- Likes ---
 
-const toggleLike = async (req, res, next) => {
+const toggleReaction = async (req, res, next) => {
   try {
     const { targetId } = req.params; // Post ID or Comment ID
-    const { type } = req.body; // 'POST' or 'COMMENT'
+    const { targetType, reactionType } = req.body;  // 'POST' or 'COMMENT'
     const userId = req.user.id;
 
-    if (!["POST", "COMMENT"].includes(type)) {
-      return res.status(400).json({ success: false, message: "Invalid type" });
+    if (!["POST", "COMMENT"].includes(targetType)) {
+      return res.status(400).json({ success: false, message: "Invalid target type" });
     }
 
-    const existingLike = await ForumLike.findOne({
+    if (!["LIKE", "DISLIKE"].includes(reactionType)) {
+      return res.status(400).json({ success: false, message: "Invalid reaction type" });
+    }
+
+    let targetModel = targetType=== "POST" ? ForumPost: ForumPostComment
+    
+    const target= await targetModel.findByPk(targetId)
+
+    if(!target) {
+      return res.status(404).json({ success: false, message: "Target not found" });
+    }
+
+    const existingReaction = await ForumReactions.findOne({
       where: {
         user_id: userId,
         target_id: targetId,
-        target_type: type,
+        target_type: targetType,
+        // reaction_type: reactionType
       },
     });
 
     let liked = false;
-    let newCount = 0;
+    let disliked =false
 
-    if (existingLike) {
-      // Unlike
-      await existingLike.destroy();
-      liked = false;
-    } else {
-      // Like
-      await ForumLike.create({
+    console.log(existingReaction)
+    if (!existingReaction) {
+      await ForumReactions.create({
         user_id: userId,
         target_id: targetId,
-        target_type: type,
-      });
-      liked = true;
-    }
+        target_type: targetType,
+        reaction_type: reactionType
+      })
 
-    // Update count in target table
-    if (type === "POST") {
-      const post = await ForumPost.findByPk(targetId);
-      if (post) {
-        if (liked) await post.increment("likes");
-        else await post.decrement("likes");
-        await post.reload();
-        newCount = post.likes;
-      }
-    } else {
-      const comment = await ForumPostComment.findByPk(targetId);
-      if (comment) {
-        if (liked) await comment.increment("likes");
-        else await comment.decrement("likes");
-        await comment.reload();
-        newCount = comment.likes;
-      }
+      liked = reactionType === "LIKE";
+      disliked = reactionType === "DISLIKE";
     }
+    else {
+      if(existingReaction.reaction_type === reactionType) {
+      await existingReaction.destroy()
+      
+    }else {
+      await existingReaction.update(
+        {
+          reaction_type: reactionType
+        }, 
+    )
+    
+      liked = reactionType === "LIKE";
+      disliked = reactionType === "DISLIKE";
+    }}
 
-    res.status(200).json({ success: true, liked, likes: newCount });
+    const like_Count= await ForumReactions.count({
+       where: {
+        target_id: targetId,
+        target_type: targetType,
+        reaction_type: "LIKE"
+      }
+    })
+    const dislike_count= await ForumReactions.count({
+       where: {
+        target_id: targetId,
+        target_type: targetType,
+        reaction_type: "DISLIKE"
+      }
+    })
+    await target.update({
+      likes: like_Count,
+      dislikes: dislike_count
+    });
+    return res.status(200).json({
+      success: true,
+      liked,
+      disliked,
+      likes: like_Count,
+      dislikes: dislike_count
+    });
+
   } catch (error) {
     next(error);
   }
 };
+// const toggleDislike = async (req, res, next) => {
+//   try {
+//     const { targetId } = req.params; // Post ID or Comment ID
+//     const { type } = req.body; // 'POST' or 'COMMENT'
+//     const userId = req.user.id;
+
+//     if (!["POST", "COMMENT"].includes(type)) {
+//       return res.status(400).json({ success: false, message: "Invalid type" });
+//     }
+
+//     const existingLike = await ForumLike.findOne({
+//       where: {
+//         user_id: userId,
+//         target_id: targetId,
+//         target_type: type,
+//       },
+//     });
+//     const existingDislike = await ForumDislike.findOne({
+//       where: {
+//         user_id: userId,
+//         target_id: targetId,
+//         target_type: type,
+//       },
+//     });
+
+//     let disliked = false;
+//     let newCount = 0;
+
+//     if (existingLike && !existingDislike ) {
+//       // Unlike
+//       await existingLike.destroy();
+//       await ForumDislike.create({
+//         user_id: userId,
+//         target_id: targetId,
+//         target_type: type,
+//       }); 
+//       disliked= true
+//     }
+    
+//     else if (!existingLike && existingDislike) {
+//       disliked= false
+//       await ForumDislike.destroy()
+
+//     }
+//     else {
+//       // Like
+//       await ForumDislike.create({
+//         user_id: userId,
+//         target_id: targetId,
+//         target_type: type,
+//       });
+//       disliked = true;
+//     }
+    
+//     // Update count in target table
+//     if (type === "POST") {
+//       const post = await ForumPost.findByPk(targetId);
+//       if (post) {
+//         if (disliked) await post.increment("dislikes");
+//         else await post.decrement("dislikes");
+//         await post.reload();
+//         newCount = post.likes;
+//       }
+//     } else {
+//       const comment = await ForumPostComment.findByPk(targetId);
+//       if (comment) {
+//         if (disliked) await comment.increment("dislikes");
+//         else await comment.decrement("dislikes");
+//         await comment.reload();
+//         newCount = comment.likes;
+//       }
+//     }
+
+//     res.status(200).json({ success: true, liked, likes: newCount });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 module.exports = {
   createPost,
@@ -411,5 +586,6 @@ module.exports = {
   deletePost,
   createComment,
   deleteComment,
-  toggleLike,
+  toggleReaction,
+  // toggleDislike
 };

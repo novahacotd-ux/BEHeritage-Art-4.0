@@ -33,6 +33,10 @@ const ForumPostComment = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    dislikes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
     created_date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

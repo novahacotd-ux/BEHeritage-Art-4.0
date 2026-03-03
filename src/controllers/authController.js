@@ -214,7 +214,8 @@ const login = async (req, res, next) => {
           intro: user.intro,
           avatar: user.avatar,
           status: user.status,
-          roles: user.roles
+          roles: user.roles,
+          created_At: user.create_at
         }
       }
     });

@@ -34,6 +34,7 @@ router.post("/posts/:postId/comments", forumController.createComment);
 router.delete("/comments/:commentId", forumController.deleteComment);
 
 // Likes
-router.post("/like/:targetId", forumController.toggleLike);
+router.post("/like/:targetId", forumController.toggleReaction);
+// router.post("/dislike/:targetId", forumController.toggleDislike);
 
 module.exports = router;
