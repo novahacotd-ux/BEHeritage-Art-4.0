@@ -20,6 +20,10 @@ const ForumPostImage = sequelize.define(
         isUrl: true,
       },
     },
+    public_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     created_date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

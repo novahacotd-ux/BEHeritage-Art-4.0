@@ -9,20 +9,30 @@ const {
   Tags,
   ForumTag,
   ForumReactions,
+  Order,
 } = require("../models");
-const { uploadToCloudinary } = require("../utils/cloudinary");
+const { uploadToCloudinary, deleteFromCloudinary } = require("../utils/cloudinary");
 const { Op , fn, col, Sequelize} = require("sequelize");
 
 // --- Posts ---
 
 const createPost = async (req, res, next) => {
   try {
-    let { content,tag ,category_id, title } = req.body;
+    const { content,category_id, title, } = req.body;
+    let tag= req.body.tag
     const userId = req.user.id;
 
-    if (tag && typeof tag === "string") {
-      tag = JSON.parse(tag);
-    } 
+    if (!tag) {
+      tag = [];
+    } else if (typeof tag === "string") {
+      try {
+        const parsed = JSON.parse(tag);
+        tag = Array.isArray(parsed) ? parsed : [parsed];
+      } catch (err) {
+        // Nếu parse fail → coi như là 1 tag đơn
+        tag = [tag];
+      }
+    }
 
     if (!content) {
       return res
@@ -80,9 +90,11 @@ const createPost = async (req, res, next) => {
             const result = await uploadToCloudinary(file, {
               resource_type: "image",
             });
+
             await ForumPostImage.create({
               post_id: post.id,
               image_url: result.secure_url,
+              public_id: result.public_id
             });
           })
         );
@@ -94,9 +106,11 @@ const createPost = async (req, res, next) => {
             const result = await uploadToCloudinary(file, {
               resource_type: "video",
             });
+            
             await ForumPostVideo.create({
               post_id: post.id,
               video_url: result.secure_url,
+              public_id: result.public_id
             });
           }) 
         );
@@ -134,7 +148,7 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, search, tag, status  } = req.query;
+    const { page = 1, limit = 10, tag, status, category_id, popular  } = req.query;
     const offset = (page - 1) * limit;
 
     const whereClause = {};
@@ -155,15 +169,9 @@ const getPosts = async (req, res, next) => {
       // I will follow that strictly if user asks, but for now safe default is Active.
       // Actually, let's allow 'all' if status is explicitly omitted, as per the Event pattern user liked.
     }
-
-    if (search) {
-      whereClause[Op.or] = [
-        { title: { [Op.like]: `%${search}%` } },
-        { content: { [Op.like]: `%${search}%` } },
-      ];
-    }
     let postIds = null;
 
+    let order=[["created_date", "DESC"]]
     if (tag) {
       const postsWithTag = await ForumPost.findAll({
         attributes: ["id"],
@@ -184,6 +192,13 @@ const getPosts = async (req, res, next) => {
     if (postIds) {
       whereClause.id = postIds;
     }
+    if (category_id) {
+      whereClause.category_id = category_id;
+    }
+    if(popular) {
+      order=[["likes", "DESC"]];
+    }
+
 
     const { count, rows } = await ForumPost.findAndCountAll({
       where: whereClause,
@@ -213,18 +228,16 @@ const getPosts = async (req, res, next) => {
           as: 'post_category',
           attributes: ["category_id", "name"],
         }
-        // Optimizing: maybe not include all comments, just count?
-        // Or include first few? For now, standard list.
       ],
-      order: [["created_date", "DESC"]],
+      order: order,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      distinct: true, // For correct count with includes
+      distinct: true,
     });
     const activeCount = await ForumPost.count({
       where: { 
-        ...whereClause,  // giữ các filter hiện tại nếu cần
-        status: "active" 
+        ...whereClause, 
+        status: "Active" 
       },
     });
 
@@ -247,7 +260,6 @@ const getPosts = async (req, res, next) => {
       ...post.toJSON(),
       comment_count: countMap[post.id] || 0,
     }));
-
 
     res.status(200).json({
       success: true,
@@ -302,6 +314,9 @@ const getPostById = async (req, res, next) => {
         },
       ],
     });
+    const commentCount = await ForumPostComment.count({
+      where: { post_id: id }
+    });
 
     if (!post) {
       return res
@@ -309,11 +324,145 @@ const getPostById = async (req, res, next) => {
         .json({ success: false, message: "Post not found" });
     }
 
-    res.status(200).json({ success: true, data: post });
+    const result= {...post.toJSON(), comment_count: commentCount}
+
+    res.status(200).json({ success: true, data: result});
   } catch (error) {
     next(error);
   }
 };
+
+const UpdatePost= async(req, res, next)=> {
+  try {
+    const {id}= req.params
+    const {keepImageIds=[], category_id, title, content}= req.body
+    let tag= req.body.tag
+    const userId = req.user.id;
+    
+    const post = await ForumPost.findByPk(id) 
+
+    if (!tag) {
+      tag = [];
+    } else if (typeof tag === "string") {
+      try {
+        const parsed = JSON.parse(tag);
+        tag = Array.isArray(parsed) ? parsed : [parsed];
+      } catch (err) {
+        // Nếu parse fail → coi như là 1 tag đơn
+        tag = [tag];
+      }
+    }
+    const tagIds = [];
+
+    for (let rawName of tag) {
+      const name = rawName.trim().toLowerCase();
+
+      // 1. tìm tag
+      let tag = await Tags.findOne({ where: { name } });
+
+      // 2. nếu chưa có thì tạo
+      if (!tag) {
+        tag = await Tags.create({ name });
+      }
+
+      tagIds.push(tag.id);
+    }
+
+    // 3. xóa quan hệ cũ
+    await ForumTag.destroy({
+      where: { post_id: id }
+    });
+
+    // 4. thêm quan hệ mới
+    for (let tagId of tagIds) {
+      await ForumTag.create({
+        post_id: id,
+        tag_id: tagId
+      });
+    }
+    if(!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    if (post.created_by!== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    if(category_id) {
+      const isCategory= await ForumCategory.findByPk(category_id)
+      if(!isCategory) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+    }
+    if(tag) {
+
+    }
+
+    await ForumPost.update({
+      ...post,
+      category_id: category_id,
+      title: title ? title: post.title,
+      content: content ? content : post.content
+    })
+
+
+
+
+
+    const  oldImages = await ForumPostImage.findAll({
+      where: {post_id: id}
+    })
+    const imagesToDelete= oldImages.filter(
+      img=> !keepImageIds.includes(img.id) 
+    )
+
+    for (const img of imagesToDelete) {
+       try {
+         await deleteFromCloudinary(img.public_id);
+       } catch (err) {
+         console.log("Cloud delete error:", err.message);
+       }
+      await img.destroy();
+    }
+    if (req.files) {
+        if (req.files.images) {
+          await Promise.all(
+            req.files.images.map(async (file) => {
+              const result = await uploadToCloudinary(file, {
+                resource_type: "image",
+              });
+              await ForumPostImage.create({
+                post_id: post.id,
+                image_url: result.secure_url,
+                public_id: result.public_id
+              });
+            })
+          );
+        }
+
+        if (req.files.videos) {
+          await Promise.all(
+            req.files.videos.map(async (file) => {
+              const result = await uploadToCloudinary(file, {
+                resource_type: "video",
+              });
+              await ForumPostVideo.create({
+                post_id: post.id,
+                video_url: result.secure_url,
+                public_id: result.public_id
+              });
+            }) 
+          );
+        }
+      }
+
+
+      return res.json({
+        message: "Update images successfully",
+      });
+  }catch(error) {
+    next(error)
+  }
+}
 
 const deletePost = async (req, res, next) => {
   try {
@@ -587,5 +736,6 @@ module.exports = {
   createComment,
   deleteComment,
   toggleReaction,
+  UpdatePost
   // toggleDislike
 };

@@ -27,6 +27,14 @@ router.post(
   // createForumPostValidation, validate,
   forumController.createPost
 );
+// Posts
+router.put(
+  "/posts/:id",
+  forumUpload,
+  // Add validation middleware here if validators.js updated
+  // createForumPostValidation, validate,
+  forumController.UpdatePost
+);
 router.delete("/posts/:id", forumController.deletePost);
 
 // Comments
@@ -34,7 +42,7 @@ router.post("/posts/:postId/comments", forumController.createComment);
 router.delete("/comments/:commentId", forumController.deleteComment);
 
 // Likes
-router.post("/like/:targetId", forumController.toggleReaction);
+router.post("/reactions/:targetId", forumController.toggleReaction);
 // router.post("/dislike/:targetId", forumController.toggleDislike);
 
 module.exports = router;
