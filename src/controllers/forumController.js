@@ -242,7 +242,7 @@ const getPosts = async (req, res, next) => {
     });
 
     const commentCounts = await ForumPostComment.findAll({
-      where: { post_id: postIds },
+      where: { post_id: rows.map(p => p.id)},
       attributes: [
         "post_id",
         [Sequelize.fn("COUNT", Sequelize.col("id")), "comment_count"]
@@ -393,11 +393,8 @@ const UpdatePost= async(req, res, next)=> {
         return res.status(404).json({ message: "Category not found" });
       }
     }
-    if(tag) {
 
-    }
-
-    await ForumPost.update({
+    await post.update({
       ...post,
       category_id: category_id,
       title: title ? title: post.title,
