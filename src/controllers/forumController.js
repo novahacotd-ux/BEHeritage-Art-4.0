@@ -382,6 +382,54 @@ const getPostById = async (req, res, next) => {
   }
 };
 
+const getPostByUser = async (req, res, next) => {
+  try {
+    const user_id = req.user.id;
+
+    const result = await ForumPost.findAndCountAll({
+      where: { created_by: user_id },
+      include: [
+         {
+          model: ForumReactions,
+          as: 'like',
+          attributes: ["reaction_type"],
+        },
+      ]
+    });
+
+    const posts = await Promise.all(
+      result.rows.map(async (post) => {
+        const commentCount = await ForumPostComment.count({
+          where: { post_id: post.id }
+        });
+        const data= post.toJSON()
+        const reactions = data.like || [];
+
+        const like = reactions.some(r => r.reaction_type === "LIKE")|| false;
+        const dislike = reactions.some(r => r.reaction_type === "DISLIKE")|| false;
+
+        delete data.like
+
+        return {
+          ...post.toJSON(),
+          like,
+          dislike,
+          commentCount
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      count: result.count,
+      data: posts
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 const UpdatePost= async(req, res, next)=> {
   try {
     const {id}= req.params
@@ -398,7 +446,6 @@ const UpdatePost= async(req, res, next)=> {
         const parsed = JSON.parse(tag);
         tag = Array.isArray(parsed) ? parsed : [parsed];
       } catch (err) {
-        // Nếu parse fail → coi như là 1 tag đơn
         tag = [tag];
       }
     }
@@ -418,18 +465,16 @@ const UpdatePost= async(req, res, next)=> {
       tagIds.push(tag.id);
     }
 
-    // 3. xóa quan hệ cũ
     await ForumTag.destroy({
       where: { post_id: id }
     });
-
-    // 4. thêm quan hệ mới
     for (let tagId of tagIds) {
       await ForumTag.create({
         post_id: id,
         tag_id: tagId
       });
     }
+    
     if(!post) {
       return res.status(404).json({ message: "Post not found" });
     }
@@ -465,7 +510,7 @@ const UpdatePost= async(req, res, next)=> {
       where: {post_id: id}
       })
       imagesToDelete= oldVideos.filter(
-        img=> !keepImageIds.includes(img.id) 
+        v=> !keepVideos.includes(v.id) 
       )
     }
     for (const img of imagesToDelete) {
@@ -507,7 +552,6 @@ const UpdatePost= async(req, res, next)=> {
           );
         }
       }
-
 
       return res.json({
         success: true,
@@ -790,6 +834,7 @@ module.exports = {
   createComment,
   deleteComment,
   toggleReaction,
+  getPostByUser,
   UpdatePost
   // toggleDislike
 };

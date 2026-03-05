@@ -17,6 +17,7 @@ const forumUpload = upload.fields([
 // Protected routes
 router.use(authenticate);
 router.get("/posts" ,forumController.getPosts);
+router.get("/myposts/" ,forumController.getPostByUser);
 router.get("/posts/:id", forumController.getPostById);
 
 // Posts

@@ -262,9 +262,9 @@ Tags.belongsToMany(ForumPost, {
 // ForumPost.hasMany(ForumTag, {foreignKey: 'post_id', as: 'forum_tags'})
 // ForumTag.belongsTo(ForumPost, {foreignKey: 'post_id', as: 'post'})
 
-// //Tag-ForumTag(1-N)
-// Tags.hasMany(ForumTag, {foreignKey: 'tag_id', as: 'forum_tags'})
-// ForumTag.belongsTo(Tags, {foreignKey: 'tag_id', as: 'tag'})
+//Tag-ForumTag(1-N)
+Tags.hasMany(ForumTag, {foreignKey: 'tag_id', as: 'forum_tags'})
+ForumTag.belongsTo(Tags, {foreignKey: 'tag_id', as: 'tag'})
 
 // ForumPost - ForumPostImage (1-N)
 ForumPost.hasMany(ForumPostImage, { foreignKey: "post_id", as: "images" });

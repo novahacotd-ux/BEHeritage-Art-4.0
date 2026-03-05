@@ -19,6 +19,7 @@ const orderRoutes = require("./orderRoutes");
 const paymentRoutes = require("./paymentRoutes");
 const celebrities= require("./celebritiesRoute")
 const historicalEvents= require("./historicalEventRoute")
+const TagRoutes= require('./tagRoutes')
 
 const siteRoutes = require("./siteRoutes");
 const siteImageRoutes = require("./siteImageRoutes");
@@ -79,5 +80,6 @@ router.use("/payments", paymentRoutes);
 router.use("/celebrities", celebrities);
 router.use("/history-event", historicalEvents);
 router.use("/forum-category", ForumCategoryRoutes);
+router.use("/tag", TagRoutes);
 
 module.exports = router;
