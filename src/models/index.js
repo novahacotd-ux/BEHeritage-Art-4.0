@@ -302,6 +302,15 @@ Category.hasMany(Product, {
   as: "products",
 });
 
+ForumPost.hasMany(ForumReactions, {
+  foreignKey: "target_id",
+  as: "like"
+});
+
+ForumReactions.belongsTo(ForumPost, {
+  foreignKey: "target_id"
+});
+
 Product.belongsTo(Category, {
   foreignKey: "category_id",
   as: "category",

@@ -150,7 +150,10 @@ const getPosts = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, tag, status, category_id, popular  } = req.query;
     const offset = (page - 1) * limit;
-
+    let userId = null
+    if(req.user) {
+      userId = req.user.id
+    }
     const whereClause = {};
 
     // Filter by status: if empty -> all, else filter
@@ -216,6 +219,16 @@ const getPosts = async (req, res, next) => {
           attributes: [],
           required: false
         },
+
+        {
+            model: ForumReactions,
+            as: "like",
+            attributes: ["reaction_type"],
+            where: {
+              user_id: userId
+            },
+            required: false
+          },
         {
           model: Tags,
           as: 'tags',
@@ -256,10 +269,23 @@ const getPosts = async (req, res, next) => {
       return acc;
     }, {});
 
-    const result = rows.map(post => ({
-      ...post.toJSON(),
-      comment_count: countMap[post.id] || 0,
-    }));
+    const result = rows.map(post => {
+      const data = post.toJSON();
+
+      const reactions = data.like || [];
+
+      const like = reactions.some(r => r.reaction_type === "LIKE");
+      const dislike = reactions.some(r => r.reaction_type === "DISLIKE");
+
+      delete data.like;
+
+      return {
+        ...data,
+        like,
+        dislike,
+        comment_count: countMap[post.id] || 0,
+      };
+    });
 
     res.status(200).json({
       success: true,
@@ -280,6 +306,11 @@ const getPosts = async (req, res, next) => {
 const getPostById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    let userId = null
+    if(req.user) {
+      userId = req.user.id
+    }
+
     const post = await ForumPost.findByPk(id, {
       include: [
         { model: ForumPostImage, as: "images" },
@@ -294,6 +325,15 @@ const getPostById = async (req, res, next) => {
           as: 'post_category',
           attributes: ["category_id", "name"],
         },
+        {
+            model: ForumReactions,
+            as: "like",
+            attributes: ["reaction_type"],
+            where: {
+              user_id: userId
+            },
+            required: false
+          },
          {
               model: Tags,
               as: 'tags',
@@ -323,8 +363,18 @@ const getPostById = async (req, res, next) => {
         .status(404)
         .json({ success: false, message: "Post not found" });
     }
+    
+    const data = post.toJSON();
 
-    const result= {...post.toJSON(), comment_count: commentCount}
+    const reactions = data.like || [];
+
+    const like = reactions.some(r => r.reaction_type === "LIKE")|| false;
+    const dislike = reactions.some(r => r.reaction_type === "DISLIKE")|| false;
+
+    delete data.like
+
+
+    const result= {...data, comment_count: commentCount, like,  dislike}
 
     res.status(200).json({ success: true, data: result});
   } catch (error) {
@@ -400,15 +450,19 @@ const UpdatePost= async(req, res, next)=> {
       title: title ? title: post.title,
       content: content ? content : post.content
     })
+    let imagesToDelete = []
 
-
-
-
-
+    const  oldVideos = await ForumPostImage.findAll({
+      where: {post_id: id}
+    })
+    imagesToDelete= oldImages.filter(
+      img=> !keepImageIds.includes(img.id) 
+    )
+    
     const  oldImages = await ForumPostImage.findAll({
       where: {post_id: id}
     })
-    const imagesToDelete= oldImages.filter(
+    imagesToDelete= oldImages.filter(
       img=> !keepImageIds.includes(img.id) 
     )
 

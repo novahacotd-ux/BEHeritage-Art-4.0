@@ -13,11 +13,11 @@ const forumUpload = upload.fields([
 ]);
 
 // Public routes (Get posts)
-router.get("/posts", forumController.getPosts);
-router.get("/posts/:id", forumController.getPostById);
 
 // Protected routes
 router.use(authenticate);
+router.get("/posts" ,forumController.getPosts);
+router.get("/posts/:id", forumController.getPostById);
 
 // Posts
 router.post(
