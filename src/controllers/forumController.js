@@ -385,7 +385,7 @@ const getPostById = async (req, res, next) => {
 const UpdatePost= async(req, res, next)=> {
   try {
     const {id}= req.params
-    const {keepImageIds=[], category_id, title, content}= req.body
+    const {keepImageIds=[], keepVideos=[], category_id, title, content}= req.body
     let tag= req.body.tag
     const userId = req.user.id;
     
@@ -452,20 +452,22 @@ const UpdatePost= async(req, res, next)=> {
     })
     let imagesToDelete = []
 
-    const  oldVideos = await ForumPostImage.findAll({
-      where: {post_id: id}
-    })
-    imagesToDelete= oldImages.filter(
-      img=> !keepImageIds.includes(img.id) 
-    )
-    
-    const  oldImages = await ForumPostImage.findAll({
-      where: {post_id: id}
-    })
-    imagesToDelete= oldImages.filter(
-      img=> !keepImageIds.includes(img.id) 
-    )
 
+    if(keepImageIds) {
+      const  oldImages = await ForumPostImage.findAll({
+        where: {post_id: id}
+      })
+      imagesToDelete= oldImages.filter(
+        img=> !keepImageIds.includes(img.id) 
+      )
+    }else {
+      const  oldVideos = await ForumPostVideo.findAll({
+      where: {post_id: id}
+      })
+      imagesToDelete= oldVideos.filter(
+        img=> !keepImageIds.includes(img.id) 
+      )
+    }
     for (const img of imagesToDelete) {
        try {
          await deleteFromCloudinary(img.public_id);
