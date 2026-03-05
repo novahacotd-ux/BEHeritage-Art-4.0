@@ -510,6 +510,7 @@ const UpdatePost= async(req, res, next)=> {
 
 
       return res.json({
+        success: true,
         message: "Update images successfully",
       });
   }catch(error) {
