@@ -384,21 +384,46 @@ const getPostById = async (req, res, next) => {
 
 const getPostByUser = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10} = req.query;
+    const offset = (page - 1) * limit;
     const user_id = req.user.id;
 
-    const result = await ForumPost.findAndCountAll({
-      where: { created_by: user_id },
+    const {rows, count} = await ForumPost.findAndCountAll({
+      where: { 
+        created_by: user_id,
+        status: "Active"
+      },
+      
       include: [
+        { model: ForumPostImage, as: "images" },
+        { model: ForumPostVideo, as: "videos" },
          {
           model: ForumReactions,
           as: 'like',
           attributes: ["reaction_type"],
         },
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "name", "avatar"],
+        },
+        
+        {
+          model: Tags,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] },
+        },
+        {
+          model: ForumCategory,
+          as: 'post_category',
+          attributes: ["category_id", "name"],
+        }
       ]
     });
 
     const posts = await Promise.all(
-      result.rows.map(async (post) => {
+      rows.map(async (post) => {
         const commentCount = await ForumPostComment.count({
           where: { post_id: post.id }
         });
@@ -414,15 +439,21 @@ const getPostByUser = async (req, res, next) => {
           ...post.toJSON(),
           like,
           dislike,
-          commentCount
+          commentCount,
+
         };
       })
     );
 
     res.status(200).json({
       success: true,
-      count: result.count,
-      data: posts
+      data: posts,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / limit),
+      },
     });
 
   } catch (error) {
@@ -433,7 +464,7 @@ const getPostByUser = async (req, res, next) => {
 const UpdatePost= async(req, res, next)=> {
   try {
     const {id}= req.params
-    const {keepImageIds=[], keepVideos=[], category_id, title, content}= req.body
+    const {keepMEdiaIds=[], category_id, title, content}= req.body
     let tag= req.body.tag
     const userId = req.user.id;
     
@@ -495,25 +526,27 @@ const UpdatePost= async(req, res, next)=> {
       title: title ? title: post.title,
       content: content ? content : post.content
     })
-    let imagesToDelete = []
 
-
-    if(keepImageIds) {
-      const  oldImages = await ForumPostImage.findAll({
-        where: {post_id: id}
-      })
-      imagesToDelete= oldImages.filter(
-        img=> !keepImageIds.includes(img.id) 
-      )
-    }else {
-      const  oldVideos = await ForumPostVideo.findAll({
+    const  oldImages = await ForumPostImage.findAll({
       where: {post_id: id}
-      })
-      imagesToDelete= oldVideos.filter(
-        v=> !keepVideos.includes(v.id) 
-      )
-    }
-    for (const img of imagesToDelete) {
+    })
+    const  oldVideos = await ForumPostVideo.findAll({
+    where: {post_id: id}
+    })  
+
+        // gộp media
+    const allMedia = [...oldImages, ...oldVideos];
+
+    // lọc những media cần xoá
+    const mediaToDelete = allMedia.filter(
+      m => !keepMEdiaIds.includes(m.id)
+    );
+
+
+
+
+  
+    for (const img of mediaToDelete) {
        try {
          await deleteFromCloudinary(img.public_id);
        } catch (err) {

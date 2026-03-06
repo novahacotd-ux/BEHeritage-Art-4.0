@@ -258,9 +258,9 @@ Tags.belongsToMany(ForumPost, {
   as: 'posts'
 });
 
-// //Forum-ForumTag(1-N)
-// ForumPost.hasMany(ForumTag, {foreignKey: 'post_id', as: 'forum_tags'})
-// ForumTag.belongsTo(ForumPost, {foreignKey: 'post_id', as: 'post'})
+//Forum-ForumTag(1-N)
+ForumPost.hasMany(ForumTag, {foreignKey: 'post_id', as: 'forum_tags'})
+ForumTag.belongsTo(ForumPost, {foreignKey: 'post_id', as: 'post'})
 
 //Tag-ForumTag(1-N)
 Tags.hasMany(ForumTag, {foreignKey: 'tag_id', as: 'forum_tags'})
