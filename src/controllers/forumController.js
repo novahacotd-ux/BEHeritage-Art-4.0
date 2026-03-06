@@ -148,7 +148,7 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, tag, status, category_id, popular  } = req.query;
+    const { page = 1, limit = 10, tag, status, category_id, popular, myself  } = req.query;
     const offset = (page - 1) * limit;
     let userId = null
     if(req.user) {
@@ -200,6 +200,9 @@ const getPosts = async (req, res, next) => {
     }
     if(popular) {
       order=[["likes", "DESC"]];
+    }
+    if(myself) {
+      whereClause.created_by= userId
     }
 
 
@@ -353,6 +356,7 @@ const getPostById = async (req, res, next) => {
           // Flattening replies might be needed or handled recursively on client
         },
       ],
+      order: [["created_date", "DESC"]]
     });
     const commentCount = await ForumPostComment.count({
       where: { post_id: id }
@@ -419,7 +423,8 @@ const getPostByUser = async (req, res, next) => {
           as: 'post_category',
           attributes: ["category_id", "name"],
         }
-      ]
+      ],
+      distinct: true
     });
 
     const posts = await Promise.all(
