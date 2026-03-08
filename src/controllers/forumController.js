@@ -392,14 +392,14 @@ const getPostByUser = async (req, res, next) => {
   try {
     const { page = 1, limit = 10} = req.query;
     const offset = (page - 1) * limit;
-    const user_id = req.user.id;
+    const { userId }  = req.params;
 
     const {rows, count} = await ForumPost.findAndCountAll({
       where: { 
-        created_by: user_id,
+        created_by: userId,
         status: "Active"
       },
-      
+    
       include: [
         { model: ForumPostImage, as: "images" },
         { model: ForumPostVideo, as: "videos" },

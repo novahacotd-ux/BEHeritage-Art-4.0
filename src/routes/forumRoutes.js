@@ -16,12 +16,12 @@ const forumUpload = upload.fields([
 // Public routes (Get posts)
 router.get("/posts" ,optionalAuth,forumController.getPosts);
 router.get("/posts/:id", optionalAuth, forumController.getPostById);
+router.get("/user/:userId" ,optionalAuth,forumController.getPostByUser);
 
 // Protected routes
 router.use(authenticate);
 // router.get("/posts" , forumController.getPosts);
 
-router.get("/myposts/" ,forumController.getPostByUser);
 
 // Posts
 router.post(
