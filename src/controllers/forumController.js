@@ -154,6 +154,8 @@ const getPosts = async (req, res, next) => {
     if(req.user) {
       userId = req.user.id
     }
+    console.log("USER:", req.user?.id);
+    console.log("USER:", userId);
     const whereClause = {};
 
     // Filter by status: if empty -> all, else filter
@@ -469,7 +471,7 @@ const getPostByUser = async (req, res, next) => {
 const UpdatePost= async(req, res, next)=> {
   try {
     const {id}= req.params
-    const {keepMEdiaIds=[], category_id, title, content}= req.body
+    const {keepMediaIds=[], category_id, title, content}= req.body
     let tag= req.body.tag
     const userId = req.user.id;
     
@@ -526,7 +528,6 @@ const UpdatePost= async(req, res, next)=> {
     }
 
     await post.update({
-      ...post,
       category_id: category_id,
       title: title ? title: post.title,
       content: content ? content : post.content
@@ -539,18 +540,12 @@ const UpdatePost= async(req, res, next)=> {
     where: {post_id: id}
     })  
 
-        // gộp media
     const allMedia = [...oldImages, ...oldVideos];
 
-    // lọc những media cần xoá
     const mediaToDelete = allMedia.filter(
       m => !keepMEdiaIds.includes(m.id)
     );
 
-
-
-
-  
     for (const img of mediaToDelete) {
        try {
          await deleteFromCloudinary(img.public_id);
@@ -590,11 +585,60 @@ const UpdatePost= async(req, res, next)=> {
           );
         }
       }
+    const updatePost = await ForumPost.findOne({
+      where: {
+        id: id,
+        created_by: userId
+      },
+      include: [
+        { model: ForumPostImage, as: "images" },
+        { model: ForumPostVideo, as: "videos" },
+         {
+          model: ForumReactions,
+          as: 'like',
+          attributes: ["reaction_type"],
+        },
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "name", "avatar"],
+        },
+        
+        {
+          model: Tags,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] },
+        },
+        {
+          model: ForumCategory,
+          as: 'post_category',
+          attributes: ["category_id", "name"],
+        }
+      ],
+      distinct: true
+    });
+   
+    const data= updatePost.toJSON()
+    const reactions = data.like || [];
 
-      return res.json({
-        success: true,
-        message: "Update images successfully",
-      });
+    const like = reactions.some(r => r.reaction_type === "LIKE")|| false;
+    const dislike = reactions.some(r => r.reaction_type === "DISLIKE")|| false;
+
+    delete data.like
+
+
+
+    return res.json({
+      success: true,
+      message: "Update images successfully",
+      data: 
+      {
+        ...data,
+        like,
+        dislike,
+      }
+    });
   }catch(error) {
     next(error)
   }

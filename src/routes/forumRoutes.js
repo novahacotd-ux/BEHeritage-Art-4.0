@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const forumController = require("../controllers/forumController");
 const authenticate = require("../middleware/authenticate");
+const optionalAuth = require("../middleware/optionalAuthenticate");
 const upload = require("../middleware/upload");
 const validate = require("../middleware/validate");
 
@@ -13,12 +14,14 @@ const forumUpload = upload.fields([
 ]);
 
 // Public routes (Get posts)
+router.get("/posts" ,optionalAuth,forumController.getPosts);
+router.get("/posts/:id", optionalAuth, forumController.getPostById);
 
 // Protected routes
 router.use(authenticate);
-router.get("/posts" ,forumController.getPosts);
+// router.get("/posts" , forumController.getPosts);
+
 router.get("/myposts/" ,forumController.getPostByUser);
-router.get("/posts/:id", forumController.getPostById);
 
 // Posts
 router.post(

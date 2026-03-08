@@ -261,10 +261,10 @@ const logout = async (req, res, next) => {
         { where: { user_id: userId, revoked_at: null } }
       );
     }
-
+    // Set tokens in HTTP-Only cookies;
     // Clear cookies
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken', );
+    res.clearCookie('refreshToken',);
 
     res.status(200).json({
       success: true,
