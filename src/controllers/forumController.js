@@ -543,7 +543,7 @@ const UpdatePost= async(req, res, next)=> {
     const allMedia = [...oldImages, ...oldVideos];
 
     const mediaToDelete = allMedia.filter(
-      m => !keepMEdiaIds.includes(m.id)
+      m => !keepMediaIds.includes(m.id)
     );
 
     for (const img of mediaToDelete) {
