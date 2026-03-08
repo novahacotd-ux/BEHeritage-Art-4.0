@@ -426,7 +426,8 @@ const getPostByUser = async (req, res, next) => {
           attributes: ["category_id", "name"],
         }
       ],
-      distinct: true
+      distinct: true,
+      order: [["created_date", "DESC"]]
     });
 
     const posts = await Promise.all(
