@@ -14,7 +14,7 @@ const ForumPost = sequelize.define(
       allowNull: false,
     },
     content: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: true,

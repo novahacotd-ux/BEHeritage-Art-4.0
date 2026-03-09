@@ -491,7 +491,7 @@ const UpdatePost= async(req, res, next)=> {
     const tagIds = [];
 
     for (let rawName of tag) {
-      const name = rawName.trim().toLowerCase();
+      const name = rawName.trim();
 
       // 1. tìm tag
       let tag = await Tags.findOne({ where: { name } });
