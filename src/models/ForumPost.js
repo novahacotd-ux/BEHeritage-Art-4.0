@@ -43,9 +43,9 @@ const ForumPost = sequelize.define(
     },
     status: {
       type: DataTypes.STRING(20),
-      defaultValue: "Active",
+      defaultValue: "Pending",
       validate: {
-        isIn: [["Active", "Deleted", "Hidden"]],
+        isIn: [["Pending","Active", "Deleted", "Hidden"]],
       },
     },
     created_date: {

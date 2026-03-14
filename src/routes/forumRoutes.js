@@ -5,6 +5,7 @@ const authenticate = require("../middleware/authenticate");
 const optionalAuth = require("../middleware/optionalAuthenticate");
 const upload = require("../middleware/upload");
 const validate = require("../middleware/validate");
+const authorize = require('../middleware/authorize');
 
 // Media upload configuration
 // Accepting fields 'images' and 'videos'
@@ -40,6 +41,9 @@ router.put(
   forumController.UpdatePost
 );
 router.delete("/posts/:id", forumController.deletePost);
+router.put("/posts/status/:id",
+  authorize('ADMIN'), 
+  forumController.updateStatusPost);
 
 // Comments
 router.post("/posts/:postId/comments", forumController.createComment);

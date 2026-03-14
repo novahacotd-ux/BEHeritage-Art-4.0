@@ -66,7 +66,7 @@ const createPost = async (req, res, next) => {
       content,
       category_id,
       title,
-      status: "Active",
+      status: "Pending",
     });
 
     if(Tagid.length>0) {
@@ -148,7 +148,7 @@ const createPost = async (req, res, next) => {
 
 const getPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, tag, status, category_id, popular, myself  } = req.query;
+    const { page = 1, limit = 10, tag, status, category_id, popular, myself, search  } = req.query;
     const offset = (page - 1) * limit;
     let userId = null
     if(req.user) {
@@ -193,6 +193,12 @@ const getPosts = async (req, res, next) => {
       });
 
       postIds = postsWithTag.map(p => p.id);
+    }
+    if (search) {
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        { content: { [Op.like]: `%${search}%` } },
+      ];
     }
     if (postIds) {
       whereClause.id = postIds;
@@ -645,6 +651,31 @@ const UpdatePost= async(req, res, next)=> {
   }
 }
 
+const updateStatusPost= async(req, res, next)=> {
+  try{
+    const { id } = req.params;
+    const userRole = req.user.roles?.[0]?.role_code;
+
+    const post = await ForumPost.findByPk(id);
+    if (!post) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
+    }
+    if (userRole !== "ADMIN") {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+    post.status = "Active";
+    await post.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Post deleted successfully" });
+
+  }catch(error) {
+    next(error);
+  }
+}
+
 const deletePost = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -830,87 +861,9 @@ const toggleReaction = async (req, res, next) => {
     next(error);
   }
 };
-// const toggleDislike = async (req, res, next) => {
-//   try {
-//     const { targetId } = req.params; // Post ID or Comment ID
-//     const { type } = req.body; // 'POST' or 'COMMENT'
-//     const userId = req.user.id;
-
-//     if (!["POST", "COMMENT"].includes(type)) {
-//       return res.status(400).json({ success: false, message: "Invalid type" });
-//     }
-
-//     const existingLike = await ForumLike.findOne({
-//       where: {
-//         user_id: userId,
-//         target_id: targetId,
-//         target_type: type,
-//       },
-//     });
-//     const existingDislike = await ForumDislike.findOne({
-//       where: {
-//         user_id: userId,
-//         target_id: targetId,
-//         target_type: type,
-//       },
-//     });
-
-//     let disliked = false;
-//     let newCount = 0;
-
-//     if (existingLike && !existingDislike ) {
-//       // Unlike
-//       await existingLike.destroy();
-//       await ForumDislike.create({
-//         user_id: userId,
-//         target_id: targetId,
-//         target_type: type,
-//       }); 
-//       disliked= true
-//     }
-    
-//     else if (!existingLike && existingDislike) {
-//       disliked= false
-//       await ForumDislike.destroy()
-
-//     }
-//     else {
-//       // Like
-//       await ForumDislike.create({
-//         user_id: userId,
-//         target_id: targetId,
-//         target_type: type,
-//       });
-//       disliked = true;
-//     }
-    
-//     // Update count in target table
-//     if (type === "POST") {
-//       const post = await ForumPost.findByPk(targetId);
-//       if (post) {
-//         if (disliked) await post.increment("dislikes");
-//         else await post.decrement("dislikes");
-//         await post.reload();
-//         newCount = post.likes;
-//       }
-//     } else {
-//       const comment = await ForumPostComment.findByPk(targetId);
-//       if (comment) {
-//         if (disliked) await comment.increment("dislikes");
-//         else await comment.decrement("dislikes");
-//         await comment.reload();
-//         newCount = comment.likes;
-//       }
-//     }
-
-//     res.status(200).json({ success: true, liked, likes: newCount });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 module.exports = {
   createPost,
+  updateStatusPost,
   getPosts,
   getPostById,
   deletePost,
