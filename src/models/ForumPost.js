@@ -18,7 +18,6 @@ const ForumPost = sequelize.define(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [1, 255],
       },
     },
     likes: {

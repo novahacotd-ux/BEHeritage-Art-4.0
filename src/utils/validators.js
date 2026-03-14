@@ -654,7 +654,7 @@ const createPaymentValidation = [
     .isUUID()
     .withMessage("Order ID must be a valid UUID"),
 
-  body("payment_method")
+  body("method")
     .trim()
     .notEmpty()
     .withMessage("Payment method is required")

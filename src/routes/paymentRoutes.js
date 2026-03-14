@@ -16,6 +16,8 @@ router.get('/',
     authorize('ADMIN'),
     paymentController.getAllPayments
 );
+router.post('/create-vnpay',paymentController.createVNPayPayment)
+router.get('/vnpay-return',paymentController.vnpayReturn)
 
 /**
  * @route   GET /api/payments/me
