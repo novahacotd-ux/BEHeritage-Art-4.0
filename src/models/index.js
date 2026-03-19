@@ -488,6 +488,24 @@ ExperiencePost.belongsTo(User, {
   as: "author",
 });
 
+HistoricalPeriod.hasMany(ExperiencePost, {
+  foreignKey: "period_id",
+  as: "experiencePosts",
+});
+ExperiencePost.belongsTo(HistoricalPeriod, {
+  foreignKey: "period_id",
+  as: "period",
+});
+
+Region.hasMany(ExperiencePost, {
+  foreignKey: "region_id",
+  as: "experiencePosts",
+});
+ExperiencePost.belongsTo(Region, {
+  foreignKey: "region_id",
+  as: "region",
+});
+
 ExperiencePost.hasMany(ExperienceComment, {
   foreignKey: "post_id",
   as: "comments",
