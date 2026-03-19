@@ -1,14 +1,19 @@
 require("dotenv").config();
 const appInsights = require('applicationinsights')
 
-appInsights
-  .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
-  .setAutoCollectRequests(true)
-  .setAutoCollectPerformance(true)
-  .setAutoCollectExceptions(true)
-  .setAutoCollectConsole(true, true)
-  .setSendLiveMetrics(true)
-  .start();
+const appInsightsEnabled =
+  (process.env.APPINSIGHTS_ENABLED || "false").toLowerCase() === "true";
+
+if (appInsightsEnabled) {
+  appInsights
+    .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+    .setAutoCollectRequests(true)
+    .setAutoCollectPerformance(true)
+    .setAutoCollectExceptions(true)
+    .setAutoCollectConsole(true, true)
+    .setSendLiveMetrics(true)
+    .start();
+}
 const express = require("express");
 
 const cors = require("cors");
@@ -148,8 +153,9 @@ io.on("connection", (socket) => {
 
 const client = appInsights.defaultClient;
 
-client.trackTrace({ message: "Server started" });
-client.trackException({ exception: new Error("Test error") });
+if (appInsightsEnabled && client) {
+  client.trackTrace({ message: "Server started" });
+}
 
 // API Routes
 app.use("/api", routes);

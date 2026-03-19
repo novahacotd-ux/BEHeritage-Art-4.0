@@ -1,4 +1,4 @@
-const { ExperiencePost, ExperienceComment, User } = require('../models');
+const { ExperiencePost, ExperienceComment, User, HistoricalPeriod, Region } = require('../models');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
 const { detectMediaType, getResourceType } = require('./uploadController');
 const { Op } = require('sequelize');
@@ -141,8 +141,34 @@ const getPostsByUser = async (req, res, next) => {
 const createPost = async (req, res, next) => {
   let uploaded = null;
   try {
-    const { caption, type, cloudinary_url, cloudinary_public_id } = req.body;
+    const { caption, type, cloudinary_url, cloudinary_public_id, period_id, region_id } = req.body;
     const userId = req.user.id;
+
+    if (!period_id || !region_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'period_id and region_id are required',
+      });
+    }
+
+    const [period, region] = await Promise.all([
+      HistoricalPeriod.findByPk(period_id),
+      Region.findByPk(region_id),
+    ]);
+
+    if (!period) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid period_id',
+      });
+    }
+
+    if (!region) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid region_id',
+      });
+    }
 
     let mediaType = type || null;
     if (req.file) {
@@ -159,10 +185,13 @@ const createPost = async (req, res, next) => {
     // Create post
     const post = await ExperiencePost.create({
       user_id: userId,
+      period_id,
+      region_id,
       caption: caption || null,
       type: mediaType,
       cloudinary_url: uploaded ? uploaded.secure_url : (cloudinary_url || null),
       cloudinary_public_id: uploaded ? uploaded.public_id : (cloudinary_public_id || null),
+      status: 'pending',
     });
 
     res.status(201).json({
@@ -190,7 +219,7 @@ const updatePost = async (req, res, next) => {
   let uploaded = null;
   try {
     const { id } = req.params;
-    const { caption, type, cloudinary_url, cloudinary_public_id } = req.body;
+    const { caption, type, cloudinary_url, cloudinary_public_id, period_id, region_id } = req.body;
     const userId = req.user.id;
     const userRole = req.user.roles?.[0]?.role_code;
 
@@ -229,6 +258,29 @@ const updatePost = async (req, res, next) => {
     if (caption !== undefined) {
       post.caption = caption;
     }
+
+    if (period_id !== undefined) {
+      const period = await HistoricalPeriod.findByPk(period_id);
+      if (!period) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid period_id',
+        });
+      }
+      post.period_id = period_id;
+    }
+
+    if (region_id !== undefined) {
+      const region = await Region.findByPk(region_id);
+      if (!region) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid region_id',
+        });
+      }
+      post.region_id = region_id;
+    }
+
     if (type !== undefined) {
       post.type = type;
     } else if (uploaded) {
@@ -268,6 +320,43 @@ const updatePost = async (req, res, next) => {
         console.error('Failed to rollback Cloudinary upload:', cleanupError);
       }
     }
+    next(error);
+  }
+};
+
+/**
+ * Review post status (Admin only)
+ */
+const reviewPostStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'status must be approved or rejected',
+      });
+    }
+
+    const post = await ExperiencePost.findByPk(id);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
+      });
+    }
+
+    post.status = status;
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Post status updated successfully',
+      data: post,
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -327,5 +416,6 @@ module.exports = {
   getPostsByUser,
   createPost,
   updatePost,
+  reviewPostStatus,
   deletePost,
 };

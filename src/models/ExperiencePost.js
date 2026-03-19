@@ -15,6 +15,22 @@ const ExperiencePost = sequelize.define('ExperiencePost', {
       key: 'id',
     },
   },
+  period_id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'historical_periods',
+      key: 'period_id',
+    },
+  },
+  region_id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: 'regions',
+      key: 'region_id',
+    },
+  },
   caption: {
     type: DataTypes.TEXT,
     allowNull: true,
@@ -30,6 +46,11 @@ const ExperiencePost = sequelize.define('ExperiencePost', {
   cloudinary_public_id: {
     type: DataTypes.TEXT,
     allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+    allowNull: false,
+    defaultValue: 'pending',
   },
 }, {
   tableName: 'experience_posts',

@@ -24,6 +24,28 @@ module.exports = {
         onDelete: 'CASCADE',
       },
 
+      period_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'historical_periods',
+          key: 'period_id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
+      },
+
+      region_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'regions',
+          key: 'region_id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
+      },
+
       caption: {
         type: Sequelize.TEXT,
         allowNull: true,
@@ -44,6 +66,12 @@ module.exports = {
         allowNull: true,
       },
 
+      status: {
+        type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+        allowNull: false,
+        defaultValue: 'pending',
+      },
+
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -59,12 +87,16 @@ module.exports = {
 
     // Indexes (tối ưu query)
     await queryInterface.addIndex('experience_posts', ['user_id']);
+    await queryInterface.addIndex('experience_posts', ['period_id']);
+    await queryInterface.addIndex('experience_posts', ['region_id']);
     await queryInterface.addIndex('experience_posts', ['type']);
+    await queryInterface.addIndex('experience_posts', ['status']);
   },
 
   async down(queryInterface, Sequelize) {
     // Xóa ENUM trước khi drop table trong PostgreSQL tránh lỗi
     await queryInterface.dropTable('experience_posts');
     await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_experience_posts_type";');
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_experience_posts_status";');
   },
 };
