@@ -599,7 +599,7 @@ const googleCallback= async (req, res, next) => {
     });
 
 
-    res.redirect('https://yourfrontend.com'); 
+    res.redirect(process.env.FRONTEND_URL); 
   } catch (err) {
     next(err);
   }
