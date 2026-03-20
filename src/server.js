@@ -1,19 +1,14 @@
 require("dotenv").config();
 const appInsights = require('applicationinsights')
 
-const appInsightsEnabled =
-  (process.env.APPINSIGHTS_ENABLED || "false").toLowerCase() === "true";
-
-if (appInsightsEnabled) {
-  appInsights
-    .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
-    .setAutoCollectRequests(true)
-    .setAutoCollectPerformance(true)
-    .setAutoCollectExceptions(true)
-    .setAutoCollectConsole(true, true)
-    .setSendLiveMetrics(true)
-    .start();
-}
+appInsights
+  .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+  .setAutoCollectRequests(true)
+  .setAutoCollectPerformance(true)
+  .setAutoCollectExceptions(true)
+  .setAutoCollectConsole(true, true)
+  .setSendLiveMetrics(true)
+  .start();
 const express = require("express");
 
 const cors = require("cors");
@@ -27,19 +22,32 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 const server = http.createServer(app);
 
+const normalizeOrigin = (value) =>
+  typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
+
+const isLocalhostOrigin = (origin) =>
+  /^http:\/\/localhost:\d+$/i.test(normalizeOrigin(origin));
 
 // Allowed origins for CORS
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  normalizeOrigin(process.env.FRONTEND_URL),
   "https://fe-heritage-art-4-0.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
-].filter(Boolean);
+]
+  .map(normalizeOrigin)
+  .filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (e.g. mobile apps, curl, Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (
+      !origin ||
+      allowedOrigins.includes(normalizedOrigin) ||
+      isLocalhostOrigin(normalizedOrigin)
+    ) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: origin ${origin} not allowed`));
@@ -47,7 +55,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
 };
 
 // Socket.IO setup
@@ -153,9 +161,8 @@ io.on("connection", (socket) => {
 
 const client = appInsights.defaultClient;
 
-if (appInsightsEnabled && client) {
-  client.trackTrace({ message: "Server started" });
-}
+client.trackTrace({ message: "Server started" });
+client.trackException({ exception: new Error("Test error") });
 
 // API Routes
 app.use("/api", routes);
