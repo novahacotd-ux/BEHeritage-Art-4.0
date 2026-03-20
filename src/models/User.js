@@ -24,6 +24,10 @@ const User = sequelize.define('User', {
     type: DataTypes.DATEONLY,
     allowNull: true
   },
+  google_id: {
+    type: DataTypes.STRING,
+    defaultValue: null
+  },
   email: {
     type: DataTypes.STRING(255),
     allowNull: false,
@@ -51,7 +55,7 @@ const User = sequelize.define('User', {
   },
   password: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     validate: {
       notEmpty: true,
       len: [6, 255]
