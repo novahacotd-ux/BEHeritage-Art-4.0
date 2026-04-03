@@ -1,14 +1,26 @@
 require("dotenv").config();
-const appInsights = require('applicationinsights')
+const appInsights = require("applicationinsights");
 
-appInsights
-  .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
-  .setAutoCollectRequests(true)
-  .setAutoCollectPerformance(true)
-  .setAutoCollectExceptions(true)
-  .setAutoCollectConsole(true, true)
-  .setSendLiveMetrics(true)
-  .start();
+const appInsightsConnectionString = process.env.APPINSIGHTS_CONNECTION_STRING;
+
+if (appInsightsConnectionString) {
+  try {
+    appInsights
+      .setup(appInsightsConnectionString)
+      .setAutoCollectRequests(true)
+      .setAutoCollectPerformance(true)
+      .setAutoCollectExceptions(true)
+      .setAutoCollectConsole(true, true)
+      .setSendLiveMetrics(true)
+      .start();
+  } catch (error) {
+    console.error("Application Insights init failed:", error.message);
+  }
+} else {
+  console.log(
+    "Application Insights disabled: missing APPINSIGHTS_CONNECTION_STRING"
+  );
+}
 const express = require("express");
 
 const cors = require("cors");
@@ -28,26 +40,25 @@ const normalizeOrigin = (value) =>
 const isLocalhostOrigin = (origin) =>
   /^http:\/\/localhost:\d+$/i.test(normalizeOrigin(origin));
 
-// Allowed origins for CORS
-const allowedOrigins = [
-  normalizeOrigin(process.env.FRONTEND_URL),
-  "https://fe-heritage-art-4-0.vercel.app",
-  "http://localhost:5173",
-  "http://localhost:3000",
-]
-  .map(normalizeOrigin)
-  .filter(Boolean);
+const frontendOrigin = normalizeOrigin(process.env.FRONTEND_URL);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) {
+    return true;
+  }
+
+  const normalizedOrigin = normalizeOrigin(origin);
+  const isFrontendOrigin =
+    frontendOrigin && normalizedOrigin === frontendOrigin;
+  const isDevLocalhost =
+    process.env.NODE_ENV !== "production" && isLocalhostOrigin(normalizedOrigin);
+
+  return isFrontendOrigin || isDevLocalhost;
+};
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
-    const normalizedOrigin = normalizeOrigin(origin);
-
-    if (
-      !origin ||
-      allowedOrigins.includes(normalizedOrigin) ||
-      isLocalhostOrigin(normalizedOrigin)
-    ) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: origin ${origin} not allowed`));
@@ -61,7 +72,13 @@ const corsOptions = {
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Socket CORS policy: origin ${origin} not allowed`));
+      }
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -157,12 +174,6 @@ io.on("connection", (socket) => {
     }
   });
 });
-
-
-const client = appInsights.defaultClient;
-
-client.trackTrace({ message: "Server started" });
-client.trackException({ exception: new Error("Test error") });
 
 // API Routes
 app.use("/api", routes);
