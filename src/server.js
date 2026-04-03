@@ -194,9 +194,6 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
-    // Test database connection
-    await testConnection();
-
     // Start listening
     server.listen(PORT, () => {
       console.log(`
@@ -211,6 +208,9 @@ const startServer = async () => {
 🔌 Socket.IO: Running
       `);
     });
+
+    // Test database connection after the port is already open.
+    await testConnection();
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
