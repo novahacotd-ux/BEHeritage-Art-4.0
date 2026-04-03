@@ -28,6 +28,7 @@ router.post(
   validate,
   eventController.createEvent
 );
+
 router.put(
   "/:id",
   authorize("ADMIN"),

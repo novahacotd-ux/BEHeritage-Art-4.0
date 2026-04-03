@@ -1,5 +1,21 @@
-const { HistoricalPeriod, HistoricalSite, SiteImage } = require('../models');
+const { HistoricalPeriod, HistoricalSite, SiteImage,HistoricalEvents, Celebrities  } = require('../models');
+const { uploadToCloudinary } = require('../utils/cloudinary');
 
+function parseYear(yearStr) {
+  if (!yearStr) return null;
+
+  const str = yearStr.toString().trim().toUpperCase();
+
+  if (str.includes("TCN")) {
+    return -parseInt(str.replace("TCN", "").trim());
+  }
+
+  if (str.includes("SCN")) {
+    return parseInt(str.replace("SCN", "").trim());
+  }
+
+  return parseInt(str);
+}
 // Get all historical periods
 exports.getAllPeriods = async (req, res) => {
     try {
@@ -8,7 +24,9 @@ exports.getAllPeriods = async (req, res) => {
                 'period_id',
                 'name',
                 'start_year',
-                'end_year'
+                'end_year',
+                'description',
+                'thumbnail_url'
             ],
             order: [['start_year', 'ASC']]
         });
@@ -16,12 +34,21 @@ exports.getAllPeriods = async (req, res) => {
         // Manually add site count for each period
         const periodsWithCount = await Promise.all(
             periods.map(async (period) => {
+                const celebrityCount= await Celebrities.count({
+                    where: {period_id: period.period_id}
+                })
+                const eventCount= await HistoricalEvents.count({
+                    where: {period_id: period.period_id}
+                })
                 const siteCount = await HistoricalSite.count({
                     where: { period_id: period.period_id }
                 });
+                
                 return {
                     ...period.toJSON(),
-                    site_count: siteCount.toString()
+                    celebrity_count: celebrityCount.toString(),
+                    site_count: siteCount.toString(),
+                    event_count: eventCount.toString()
                 };
             })
         );
@@ -40,6 +67,44 @@ exports.getAllPeriods = async (req, res) => {
         });
     }
 };
+
+exports.getPeriodByID = async( req, res)=> {
+    try {
+        const { id } = req.params;
+        const period = await HistoricalPeriod.findByPk(id)
+        if (!period) {
+            return res.status(404).json({
+                success: false,
+                message: 'Period not found'
+            });
+        }
+        const event= await HistoricalEvents.findAll({
+            where: {period_id: id},
+            attributes: ['event_id','name','start_year','end_year'],
+            order: [['start_year', 'ASC']]
+        })
+        const celebrities = await Celebrities.findAll({
+            where: { period_id: id },
+            attributes: ['celebrities_id', 'name', 'bio', 'thumbnail_url']
+        });
+
+        res.json({
+        success: true,
+        data: {
+            celebrities,
+            event
+        }
+        });
+        
+    }catch(error) {
+        console.error('Error fetching period by id:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch period by id:',
+            error: error.message
+        });
+    }
+}
 
 // Get period detail with sites
 exports.getPeriodDetail = async (req, res) => {
@@ -89,12 +154,37 @@ exports.getPeriodDetail = async (req, res) => {
 // Create new period (Admin only)
 exports.createPeriod = async (req, res) => {
     try {
-        const { name, start_year, end_year } = req.body;
+        const { name, start_year, end_year, description } = req.body;
+        const media = req.file
+        const start=parseYear(start_year)
+        const end= parseYear(end_year)
+
+        if (/^\d+$/.test(name.trim())) {
+            return res.status(400).json({
+                success: false,
+                message: 'Period name cannot contain only numbers'
+            });
+        }
+        if(start> end) {
+            return res.status(400).json({
+                success: false,
+                message: 'start_year must be less than or equal to end_year'
+            });
+        }
+
+        let thumbnail_url = null
+        
+        if(media) {
+            const uploadResult = await uploadToCloudinary(media);
+            thumbnail_url = uploadResult.secure_url;
+        }
 
         const newPeriod = await HistoricalPeriod.create({
             name,
-            start_year,
-            end_year
+            start_year: start,
+            end_year: end,
+            description,
+            thumbnail_url
         });
 
         res.status(201).json({
@@ -116,7 +206,10 @@ exports.createPeriod = async (req, res) => {
 exports.updatePeriod = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, start_year, end_year } = req.body;
+        const { name, start_year, end_year, description } = req.body;
+        const media = req.file
+        const start=parseYear(start_year)
+        const end= parseYear(end_year)
 
         const period = await HistoricalPeriod.findByPk(id);
         if (!period) {
@@ -125,14 +218,34 @@ exports.updatePeriod = async (req, res) => {
                 message: 'Period not found'
             });
         }
+        if(start> end) {
+            return res.status(400).json({
+                success: false,
+                message: 'start_year must be less than or equal to end_year'
+            });
+        }
+        
+        let thumbnail_url= period.thumbnail_url
 
-        await period.update({ name, start_year, end_year });
+        if(media) {
+            const uploadResult = await uploadToCloudinary(media);
+            thumbnail_url = uploadResult.secure_url;
+        }
+
+        await period.update({
+            name: name ?? period.name , 
+            start_year: start?? period.start_year, 
+            end_year: end ?? period.end_year, 
+            description: description ?? period.description, 
+            thumbnail_url: thumbnail_url?? period.thumbnail_url
+         });
 
         res.json({
             success: true,
             message: 'Period updated successfully',
             data: period
         });
+        
     } catch (error) {
         console.error('Error updating period:', error);
         res.status(400).json({

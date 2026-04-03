@@ -1,0 +1,1530 @@
+{
+  "info": {
+    "_postman_id": "2140ae4c-51ce-4a16-80ac-0e143294298e",
+    "name": "HA_4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30786328"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "{{base_url}}/api/auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"admin@heritage-art.com\",\r\n  \"password\": \"Admin@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/auth/login",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"admin@heritage-art.com\",\r\n  \"password\": \"Admin@123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "accessToken={{vault:json-web-token}}; Max-Age=900; Path=/; Expires=Sun, 25 Jan 2026 21:40:43 GMT; HttpOnly; SameSite=Lax"
+                },
+                {
+                  "key": "Set-Cookie",
+                  "value": "refreshToken={{vault:json-web-token}}; Max-Age=604800; Path=/; Expires=Sun, 01 Feb 2026 21:25:43 GMT; HttpOnly; SameSite=Lax"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "370"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"172-yXaOGQQ60dU1NjWiU1hOsJCSNkc\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 21:25:43 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Login successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"System Administrator\",\n            \"email\": \"admin@heritage-art.com\",\n            \"identity_number\": \"ADMIN001\",\n            \"date_of_birth\": null,\n            \"gender\": \"Male\",\n            \"intro\": null,\n            \"avatar\": null,\n            \"status\": \"Active\",\n            \"roles\": [\n                {\n                    \"id\": 1,\n                    \"role_name\": \"Administrator\",\n                    \"role_code\": \"ADMIN\",\n                    \"role_description\": \"Administrator with full system access\"\n                }\n            ]\n        }\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Periods",
+      "item": [
+        {
+          "name": "{{base_url}}/api/periods?page=1&limit=20",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/periods?page=1&limit=20",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/periods?page=1&limit=20",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "periods"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "525"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"20d-RG6o8XBtp4/NbMwAZOiPFzle0jM\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 21:28:27 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"count\": 5,\n    \"data\": [\n        {\n            \"period_id\": 1,\n            \"name\": \"Triều đại Lý\",\n            \"start_year\": 1009,\n            \"end_year\": 1225,\n            \"site_count\": \"2\"\n        },\n        {\n            \"period_id\": 2,\n            \"name\": \"Triều đại Trần\",\n            \"start_year\": 1226,\n            \"end_year\": 1400,\n            \"site_count\": \"1\"\n        },\n        {\n            \"period_id\": 3,\n            \"name\": \"Triều đại Lê\",\n            \"start_year\": 1428,\n            \"end_year\": 1788,\n            \"site_count\": \"0\"\n        },\n        {\n            \"period_id\": 4,\n            \"name\": \"Triều đại Nguyễn\",\n            \"start_year\": 1802,\n            \"end_year\": 1945,\n            \"site_count\": \"1\"\n        },\n        {\n            \"period_id\": 5,\n            \"name\": \"Thời kỳ Pháp thuộc\",\n            \"start_year\": 1858,\n            \"end_year\": 1954,\n            \"site_count\": \"1\"\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/periods",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"name\": \"Triều đại Tây Sơn\",\r\n   \"start_year\": 1778,\r\n   \"end_year\": 1802,\r\n   \"site_count\": \"1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/periods",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "periods"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/periods",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \"name\": \"Triều đại Tây Sơn\",\r\n   \"start_year\": 1778,\r\n   \"end_year\": 1802,\r\n   \"site_count\": \"1\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/periods",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "periods"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "147"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"93-DmA+WwnQYhqzn0/ZsCmzrMGVIxg\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 21:43:46 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Period created successfully\",\n    \"data\": {\n        \"period_id\": 6,\n        \"name\": \"Triều đại Tây Sơn\",\n        \"start_year\": 1778,\n        \"end_year\": 1802\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Locations",
+      "item": [
+        {
+          "name": "{{base_url}}/api/locations?id=c1f79768-d4d4-4d64-958e-e8c26266870",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations?id=c1f79768-d4d4-4d64-958e-e8c26266870",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n   \"name\": \"Triều đại Tây Sơn\",\r\n   \"start_year\": 1778,\r\n   \"end_year\": 1802,\r\n   \"site_count\": \"1\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/locations?id=c1f79768-d4d4-4d64-958e-e8c26266870",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "c1f79768-d4d4-4d64-958e-e8c26266870",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "727"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"2d7-HYJByH6aB1cYv+EwRG+4chYDLSQ\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 22:03:59 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n            \"name\": \"Dinh Độc Lập\",\n            \"address\": \"Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam\",\n            \"description\": \"Historic pagoda\",\n            \"latitude\": \"10.798446\",\n            \"longitude\": \"106.701031\",\n            \"location_type\": \"Di tích lịch sử\",\n            \"year_built\": 1871,\n            \"is_verified\": false,\n            \"view_count\": 0,\n            \"created_at\": \"2026-01-25T22:00:44.069Z\",\n            \"updated_at\": \"2026-01-25T22:00:44.069Z\",\n            \"tags\": [\n                {\n                    \"id\": \"c8ab6152-f9da-4c8c-a3ff-9312c498b26a\",\n                    \"location_id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n                    \"period_id\": 5,\n                    \"region_id\": 3,\n                    \"created_at\": \"2026-01-25T22:00:44.106Z\"\n                }\n            ]\n        }\n    ],\n    \"pagination\": {\n        \"total\": 1,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations/677a4384-050c-4552-8ab0-b339ce00ea18",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/locations/677a4384-050c-4552-8ab0-b339ce00ea18",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "677a4384-050c-4552-8ab0-b339ce00ea18"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/locations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "727"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"2d7-HYJByH6aB1cYv+EwRG+4chYDLSQ\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 22:01:22 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n            \"name\": \"Dinh Độc Lập\",\n            \"address\": \"Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam\",\n            \"description\": \"Historic pagoda\",\n            \"latitude\": \"10.798446\",\n            \"longitude\": \"106.701031\",\n            \"location_type\": \"Di tích lịch sử\",\n            \"year_built\": 1871,\n            \"is_verified\": false,\n            \"view_count\": 0,\n            \"created_at\": \"2026-01-25T22:00:44.069Z\",\n            \"updated_at\": \"2026-01-25T22:00:44.069Z\",\n            \"tags\": [\n                {\n                    \"id\": \"c8ab6152-f9da-4c8c-a3ff-9312c498b26a\",\n                    \"location_id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n                    \"period_id\": 5,\n                    \"region_id\": 3,\n                    \"created_at\": \"2026-01-25T22:00:44.106Z\"\n                }\n            ]\n        }\n    ],\n    \"pagination\": {\n        \"total\": 1,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Dinh Độc Lập",
+                  "type": "text",
+                  "uuid": "5376320d-6692-4e65-b978-de8357864c57"
+                },
+                {
+                  "key": "address",
+                  "value": "Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam",
+                  "type": "text",
+                  "uuid": "98865059-dd35-4a61-b8e2-91d77314c21f"
+                },
+                {
+                  "key": "description",
+                  "value": "Historic pagoda",
+                  "type": "text",
+                  "uuid": "020d8fef-1ba4-469d-8cdf-b8a6358ed0fd"
+                },
+                {
+                  "key": "latitude",
+                  "value": "10.79844626459727",
+                  "type": "text",
+                  "uuid": "ab06248b-df8c-4b1f-a143-0478be67c111"
+                },
+                {
+                  "key": "longitude",
+                  "value": "106.70103098192592",
+                  "type": "text",
+                  "uuid": "7b59589f-b673-4ac2-8a89-57c3b118ad88"
+                },
+                {
+                  "key": "location_type",
+                  "value": "Di tích lịch sử",
+                  "type": "text",
+                  "uuid": "358b780b-afa1-4b3d-8f6f-3e41a903d723"
+                },
+                {
+                  "key": "year_built",
+                  "value": "1871",
+                  "type": "text",
+                  "uuid": "9a20f512-469c-434c-8010-5a5aaf227d22"
+                },
+                {
+                  "key": "period_id",
+                  "value": "5",
+                  "type": "text",
+                  "uuid": "c475e26b-783c-462e-a4ac-cc22b8f304ad"
+                },
+                {
+                  "key": "region_id",
+                  "value": "3",
+                  "type": "text",
+                  "uuid": "03322473-a219-4351-8583-25f803331745"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "uuid": "ba574d77-1a2c-47ad-bc6c-e1e711ae9e5b",
+                  "src": "postman-cloud:///1f0fa38e-f9e0-4ab0-a9d6-e501dbab78f7"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "uuid": "aa3e1bf0-e810-435d-acd4-268401d378ad",
+                  "src": "postman-cloud:///1f0fa390-af16-4f00-92fc-bbaf4deeb86a"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/locations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Dinh Độc Lập",
+                      "type": "text",
+                      "uuid": "5376320d-6692-4e65-b978-de8357864c57"
+                    },
+                    {
+                      "key": "address",
+                      "value": "Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam",
+                      "type": "text",
+                      "uuid": "98865059-dd35-4a61-b8e2-91d77314c21f"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Historic pagoda",
+                      "type": "text",
+                      "uuid": "020d8fef-1ba4-469d-8cdf-b8a6358ed0fd"
+                    },
+                    {
+                      "key": "latitude",
+                      "value": "10.79844626459727",
+                      "type": "text",
+                      "uuid": "ab06248b-df8c-4b1f-a143-0478be67c111"
+                    },
+                    {
+                      "key": "longitude",
+                      "value": "106.70103098192592",
+                      "type": "text",
+                      "uuid": "7b59589f-b673-4ac2-8a89-57c3b118ad88"
+                    },
+                    {
+                      "key": "location_type",
+                      "value": "Di tích lịch sử",
+                      "type": "text",
+                      "uuid": "358b780b-afa1-4b3d-8f6f-3e41a903d723"
+                    },
+                    {
+                      "key": "year_built",
+                      "value": "1871",
+                      "type": "text",
+                      "uuid": "9a20f512-469c-434c-8010-5a5aaf227d22"
+                    },
+                    {
+                      "key": "period_id",
+                      "value": "5",
+                      "type": "text",
+                      "uuid": "c475e26b-783c-462e-a4ac-cc22b8f304ad"
+                    },
+                    {
+                      "key": "region_id",
+                      "value": "3",
+                      "type": "text",
+                      "uuid": "03322473-a219-4351-8583-25f803331745"
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "uuid": "ba574d77-1a2c-47ad-bc6c-e1e711ae9e5b",
+                      "src": "postman-cloud:///1f0fa38e-f9e0-4ab0-a9d6-e501dbab78f7"
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "uuid": "aa3e1bf0-e810-435d-acd4-268401d378ad",
+                      "src": "postman-cloud:///1f0fa390-af16-4f00-92fc-bbaf4deeb86a"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/locations",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "724"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"2d4-EVFibmlGCiA9tNsARAaFnD2vbQU\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 22:00:46 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Location created successfully\",\n    \"data\": {\n        \"id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n        \"name\": \"Dinh Độc Lập\",\n        \"address\": \"Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam\",\n        \"description\": \"Historic pagoda\",\n        \"latitude\": \"10.798446\",\n        \"longitude\": \"106.701031\",\n        \"location_type\": \"Di tích lịch sử\",\n        \"year_built\": 1871,\n        \"is_verified\": false,\n        \"view_count\": 0,\n        \"created_at\": \"2026-01-25T22:00:44.069Z\",\n        \"updated_at\": \"2026-01-25T22:00:44.069Z\",\n        \"tags\": [\n            {\n                \"id\": \"c8ab6152-f9da-4c8c-a3ff-9312c498b26a\",\n                \"location_id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n                \"period_id\": 5,\n                \"region_id\": 3,\n                \"created_at\": \"2026-01-25T22:00:44.106Z\"\n            }\n        ],\n        \"mediaAssets\": []\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations?id=c1f79768-d4d4-4d64-958e-e8c26266870d",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \r\n  \"description\": \"Dinh Độc Lập (Independence Palace), còn được gọi là Dinh Thống Nhất, là một công trình biểu tượng của Thành phố Hồ Chí Minh, gắn liền với những biến động lớn trong lịch sử Việt Nam thế kỷ 20. Nằm giữa trung tâm quận 1, tòa dinh vừa là điểm tham quan văn hóa, vừa là minh chứng sống động cho giai đoạn chiến tranh và hòa bình của đất nước.\",\r\n  \"is_verified\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/locations/c1f79768-d4d4-4d64-958e-e8c26266870d",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "c1f79768-d4d4-4d64-958e-e8c26266870d"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations?id=c1f79768-d4d4-4d64-958e-e8c26266870d",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \r\n  \"description\": \"Dinh Độc Lập (Independence Palace), còn được gọi là Dinh Thống Nhất, là một công trình biểu tượng của Thành phố Hồ Chí Minh, gắn liền với những biến động lớn trong lịch sử Việt Nam thế kỷ 20. Nằm giữa trung tâm quận 1, tòa dinh vừa là điểm tham quan văn hóa, vừa là minh chứng sống động cho giai đoạn chiến tranh và hòa bình của đất nước.\",\r\n  \"is_verified\": true\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/locations/c1f79768-d4d4-4d64-958e-e8c26266870d",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations",
+                    "c1f79768-d4d4-4d64-958e-e8c26266870d"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "1148"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"47c-GOGZjmKQwsYNhDluRXJ3o9COrBA\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 23:35:04 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Location updated successfully\",\n    \"data\": {\n        \"id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n        \"name\": \"Dinh Độc Lập\",\n        \"address\": \"Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam\",\n        \"description\": \"Dinh Độc Lập (Independence Palace), còn được gọi là Dinh Thống Nhất, là một công trình biểu tượng của Thành phố Hồ Chí Minh, gắn liền với những biến động lớn trong lịch sử Việt Nam thế kỷ 20. Nằm giữa trung tâm quận 1, tòa dinh vừa là điểm tham quan văn hóa, vừa là minh chứng sống động cho giai đoạn chiến tranh và hòa bình của đất nước.\",\n        \"latitude\": \"10.798446\",\n        \"longitude\": \"106.701031\",\n        \"location_type\": \"Di tích lịch sử\",\n        \"year_built\": 1871,\n        \"is_verified\": true,\n        \"view_count\": 0,\n        \"created_at\": \"2026-01-25T22:00:44.069Z\",\n        \"updated_at\": \"2026-01-25T23:35:04.173Z\",\n        \"tags\": [\n            {\n                \"id\": \"c8ab6152-f9da-4c8c-a3ff-9312c498b26a\",\n                \"location_id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n                \"period_id\": 5,\n                \"region_id\": 3,\n                \"created_at\": \"2026-01-25T22:00:44.106Z\"\n            }\n        ],\n        \"mediaAssets\": []\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations?id=6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/locations?id=6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "6ea8bf7f-7d9b-4306-be0d-8b633b355327"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations?id=6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/locations?id=6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "6ea8bf7f-7d9b-4306-be0d-8b633b355327"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "1369"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"559-hFKBdVqUKUEHE7OuuVtnbGDmrhM\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 22:14:04 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": \"6ea8bf7f-7d9b-4306-be0d-8b633b355327\",\n            \"name\": \"Dinh Độc Lập\",\n            \"address\": \"Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam\",\n            \"description\": \"Historic pagoda\",\n            \"latitude\": \"10.798446\",\n            \"longitude\": \"106.701031\",\n            \"location_type\": \"Di tích lịch sử\",\n            \"year_built\": 1871,\n            \"is_verified\": false,\n            \"view_count\": 0,\n            \"created_at\": \"2026-01-25T22:12:09.712Z\",\n            \"updated_at\": \"2026-01-25T22:12:09.712Z\",\n            \"tags\": [\n                {\n                    \"id\": \"1bca4d34-aeee-4647-8b97-249a53880e7c\",\n                    \"location_id\": \"6ea8bf7f-7d9b-4306-be0d-8b633b355327\",\n                    \"period_id\": 5,\n                    \"region_id\": 3,\n                    \"created_at\": \"2026-01-25T22:12:09.743Z\"\n                }\n            ]\n        },\n        {\n            \"id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n            \"name\": \"Dinh Độc Lập\",\n            \"address\": \"Bảo tàng Dinh Độc Lập, 106 Nguyễn Du, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh 700000, Việt Nam\",\n            \"description\": \"Historic pagoda\",\n            \"latitude\": \"10.798446\",\n            \"longitude\": \"106.701031\",\n            \"location_type\": \"Di tích lịch sử\",\n            \"year_built\": 1871,\n            \"is_verified\": false,\n            \"view_count\": 0,\n            \"created_at\": \"2026-01-25T22:00:44.069Z\",\n            \"updated_at\": \"2026-01-25T22:00:44.069Z\",\n            \"tags\": [\n                {\n                    \"id\": \"c8ab6152-f9da-4c8c-a3ff-9312c498b26a\",\n                    \"location_id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n                    \"period_id\": 5,\n                    \"region_id\": 3,\n                    \"created_at\": \"2026-01-25T22:00:44.106Z\"\n                }\n            ]\n        }\n    ],\n    \"pagination\": {\n        \"total\": 2,\n        \"page\": 1,\n        \"limit\": 10,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations/677a4384-050c-4552-8ab0-b339ce00ea18",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/locations/677a4384-050c-4552-8ab0-b339ce00ea18",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "677a4384-050c-4552-8ab0-b339ce00ea18"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations/677a4384-050c-4552-8ab0-b339ce00ea18",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/locations/677a4384-050c-4552-8ab0-b339ce00ea18",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations",
+                    "677a4384-050c-4552-8ab0-b339ce00ea18"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "58"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"3a-7c0KldSYOlkCFuvG4pIpdOQYPUE\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 23:35:47 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Location deleted successfully\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "interactions",
+      "item": [
+        {
+          "name": "{{base_url}}/api/locations/c1f79768-d4d4-4d64-958e-e8c26266870d/interactions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"action_type\": \"like\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/locations/c1f79768-d4d4-4d64-958e-e8c26266870d/interactions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "c1f79768-d4d4-4d64-958e-e8c26266870d",
+                "interactions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations/c1f79768-d4d4-4d64-958e-e8c26266870d/interactions",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"action_type\": \"like\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/locations/c1f79768-d4d4-4d64-958e-e8c26266870d/interactions",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations",
+                    "c1f79768-d4d4-4d64-958e-e8c26266870d",
+                    "interactions"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "280"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"118-y/IMLED/EaMmpxaZwg7VCqmNNeQ\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 22:20:32 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Interaction created successfully\",\n    \"data\": {\n        \"id\": \"7f90e1a1-c43d-439e-9bf2-019c6155792d\",\n        \"user_id\": 1,\n        \"location_id\": \"c1f79768-d4d4-4d64-958e-e8c26266870d\",\n        \"action_type\": \"like\",\n        \"updated_at\": \"2026-01-25T22:20:32.504Z\",\n        \"created_at\": \"2026-01-25T22:20:32.504Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                "interactions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations",
+                    "6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                    "interactions"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "292"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"124-rD59X5Glk9MCBlIKPtTt7joEI9I\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 23:22:06 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": \"e66528d5-ae54-4410-9b8a-18cca4c80889\",\n            \"user_id\": 1,\n            \"location_id\": \"6ea8bf7f-7d9b-4306-be0d-8b633b355327\",\n            \"action_type\": \"like\",\n            \"created_at\": \"2026-01-25T22:41:16.206Z\",\n            \"updated_at\": \"2026-01-25T22:41:16.206Z\"\n        }\n    ],\n    \"pagination\": {\n        \"total\": 1,\n        \"page\": 1,\n        \"limit\": 10,\n        \"pages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": " {\r\n            \r\n            \"action_type\": \"favorite\",\r\n            \r\n            \"updated_at\": \"2026-01-25T22:41:16.206Z\"\r\n        }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                "interactions",
+                "e66528d5-ae54-4410-9b8a-18cca4c80889"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\r\n            \r\n            \"action_type\": \"favorite\",\r\n            \r\n            \"updated_at\": \"2026-01-25T22:41:16.206Z\"\r\n        }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations",
+                    "6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                    "interactions",
+                    "e66528d5-ae54-4410-9b8a-18cca4c80889"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "284"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"11c-vyczmPGnq7Z+yL4M2fo8agf/7X4\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 23:30:38 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Interaction updated successfully\",\n    \"data\": {\n        \"id\": \"e66528d5-ae54-4410-9b8a-18cca4c80889\",\n        \"user_id\": 1,\n        \"location_id\": \"6ea8bf7f-7d9b-4306-be0d-8b633b355327\",\n        \"action_type\": \"favorite\",\n        \"created_at\": \"2026-01-25T22:41:16.206Z\",\n        \"updated_at\": \"2026-01-25T23:30:38.835Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                "interactions",
+                "e66528d5-ae54-4410-9b8a-18cca4c80889"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/locations/6ea8bf7f-7d9b-4306-be0d-8b633b355327/interactions/e66528d5-ae54-4410-9b8a-18cca4c80889",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "locations",
+                    "6ea8bf7f-7d9b-4306-be0d-8b633b355327",
+                    "interactions",
+                    "e66528d5-ae54-4410-9b8a-18cca4c80889"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "http://localhost:5173"
+                },
+                {
+                  "key": "Vary",
+                  "value": "Origin"
+                },
+                {
+                  "key": "Access-Control-Allow-Credentials",
+                  "value": "true"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "61"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"3d-0jsXE1o5ANwEjMXXOUMK0ItpVrk\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 25 Jan 2026 23:31:40 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"message\": \"Interaction deleted successfully\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

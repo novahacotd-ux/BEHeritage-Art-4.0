@@ -1,5 +1,16 @@
 require("dotenv").config();
+const appInsights = require('applicationinsights')
+
+appInsights
+  .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+  .setAutoCollectRequests(true)
+  .setAutoCollectPerformance(true)
+  .setAutoCollectExceptions(true)
+  .setAutoCollectConsole(true, true)
+  .setSendLiveMetrics(true)
+  .start();
 const express = require("express");
+
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const http = require("http");
@@ -11,22 +22,54 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 const server = http.createServer(app);
 
+const normalizeOrigin = (value) =>
+  typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
+
+const isLocalhostOrigin = (origin) =>
+  /^http:\/\/localhost:\d+$/i.test(normalizeOrigin(origin));
+
+// Allowed origins for CORS
+const allowedOrigins = [
+  normalizeOrigin(process.env.FRONTEND_URL),
+  "https://fe-heritage-art-4-0.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+]
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (
+      !origin ||
+      allowedOrigins.includes(normalizedOrigin) ||
+      isLocalhostOrigin(normalizedOrigin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  optionsSuccessStatus: 204,
+};
+
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
 // Middleware
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Handle preflight for all routes
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -115,6 +158,12 @@ io.on("connection", (socket) => {
   });
 });
 
+
+const client = appInsights.defaultClient;
+
+client.trackTrace({ message: "Server started" });
+client.trackException({ exception: new Error("Test error") });
+
 // API Routes
 app.use("/api", routes);
 
@@ -140,6 +189,8 @@ const startServer = async () => {
     // Start listening
     server.listen(PORT, () => {
       console.log(`
+    
+    Connection string: ${process.env.APPINSIGHTS_CONNECTION_STRING}
 🚀 Server is running on port ${PORT}
 📝 Environment: ${process.env.NODE_ENV || "development"}
 📚 API Documentation: http://localhost:${PORT}/api-docs
@@ -156,5 +207,7 @@ const startServer = async () => {
 };
 
 startServer();
+
+
 
 module.exports = { app, io };

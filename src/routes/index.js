@@ -17,6 +17,9 @@ const addressRoutes = require("./addressRoutes");
 const cartRoutes = require("./cartRoutes");
 const orderRoutes = require("./orderRoutes");
 const paymentRoutes = require("./paymentRoutes");
+const celebrities= require("./celebritiesRoute")
+const historicalEvents= require("./historicalEventRoute")
+const TagRoutes= require('./tagRoutes')
 
 const siteRoutes = require("./siteRoutes");
 const siteImageRoutes = require("./siteImageRoutes");
@@ -28,6 +31,7 @@ const mediaRoutes = require("./mediaRoutes");
 const router = express.Router();
 const experiencePostRoutes = require('./experiencePostRoutes');
 const experienceCommentRoutes = require('./experienceCommentRoutes');
+const ForumCategoryRoutes= require('./forumCategoryRoutes')
 
 
 // Health check endpoint
@@ -73,5 +77,9 @@ router.use("/addresses", addressRoutes);
 router.use("/cart", cartRoutes);
 router.use("/orders", orderRoutes);
 router.use("/payments", paymentRoutes);
+router.use("/celebrities", celebrities);
+router.use("/history-event", historicalEvents);
+router.use("/forum-category", ForumCategoryRoutes);
+router.use("/tag", TagRoutes);
 
 module.exports = router;

@@ -654,7 +654,7 @@ const createPaymentValidation = [
     .isUUID()
     .withMessage("Order ID must be a valid UUID"),
 
-  body("payment_method")
+  body("method")
     .trim()
     .notEmpty()
     .withMessage("Payment method is required")
@@ -680,6 +680,36 @@ const updatePaymentStatusValidation = [
     .withMessage("Status is required")
     .isIn(["Pending", "Completed", "Failed", "Refunded"])
     .withMessage("Status must be Pending, Completed, Failed, or Refunded"),
+];
+
+const periodValidation = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Period name is required")
+    .isLength({ min: 2, max: 255 })
+    .withMessage("Period name must be between 2 and 255 characters"),
+
+  body("start_year")
+    .notEmpty()
+    .withMessage("start_year is required")
+    .withMessage("start_year must be an integer"),
+
+  body("end_year")
+    .notEmpty()
+    .withMessage("end_year is required")
+    .withMessage("end_year must be an integer"),
+];
+
+const celebritiesValidation = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Name is required")
+    .isLength({ min: 2, max: 255 })
+    .withMessage("Name must be between 2 and 255 characters")
+    .matches(/^[\p{L}\s.'-]+$/u)
+    .withMessage("Name contains invalid characters"),
 ];
 
 module.exports = {
@@ -717,4 +747,6 @@ module.exports = {
   updateOrderStatusValidation,
   createPaymentValidation,
   updatePaymentStatusValidation,
+  periodValidation,
+  celebritiesValidation,
 };

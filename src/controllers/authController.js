@@ -1,6 +1,7 @@
 const { User, Role, UserRole, RefreshToken } = require('../models');
 const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
-
+const oauth2Client = require('../config/googleOAuth'); // import OAuth2Client
+const { google } = require('googleapis');
 /**
  * Register a new user
  */
@@ -92,14 +93,14 @@ const register = async (req, res, next) => {
     res.cookie('accessToken', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -189,14 +190,14 @@ const login = async (req, res, next) => {
     res.cookie('accessToken', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -214,7 +215,8 @@ const login = async (req, res, next) => {
           intro: user.intro,
           avatar: user.avatar,
           status: user.status,
-          roles: user.roles
+          roles: user.roles,
+          created_At: user.create_at
         }
       }
     });
@@ -260,10 +262,10 @@ const logout = async (req, res, next) => {
         { where: { user_id: userId, revoked_at: null } }
       );
     }
-
+    // Set tokens in HTTP-Only cookies;
     // Clear cookies
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken', );
+    res.clearCookie('refreshToken',);
 
     res.status(200).json({
       success: true,
@@ -503,14 +505,14 @@ const refreshToken = async (req, res, next) => {
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -522,6 +524,87 @@ const refreshToken = async (req, res, next) => {
     next(error);
   }
 };
+const googleLogin = async (req, res) => {
+  const scopes = [
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email'
+  ];
+
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: scopes
+  });
+
+  res.redirect(url);
+}
+const googleCallback= async (req, res, next) => {
+  try {
+    const code = req.query.code;
+    const { tokens } = await oauth2Client.getToken(code); // trao đổi code lấy access token + id token
+    oauth2Client.setCredentials(tokens);
+
+  
+    const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+    const userInfo = await oauth2.userinfo.get();
+
+    const { email, name, id: google_id, picture: avatar } = userInfo.data;
+
+    let user = await User.findOne({ where: { google_id } });
+    if (!user) {
+      user = await User.findOne({ where: { email } });
+      if (user) {
+        user.google_id = google_id;
+        await user.save();
+      } else {
+        user = await User.create({
+          email,
+          name,
+          avatar,
+          status: 'Active',
+          google_id,
+          password: null
+        });
+        const defaultRole = await Role.findOne({ where: { role_code: 'USER' } });
+        if (defaultRole) await user.addRole(defaultRole);
+      }
+    }
+
+    const token = generateToken({ id: user.id, email: user.email });
+    const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+
+    await RefreshToken.create({
+      user_id: user.id,
+      token: refreshToken,
+      expires_at: expiresAt
+    });
+
+    // Set tokens in HTTP-Only cookies
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+
+    res.redirect(process.env.FRONTEND_URL); 
+  } catch (err) {
+    next(err);
+  }
+}
+
 
 module.exports = {
   register,
@@ -530,5 +613,7 @@ module.exports = {
   logout,
   updateProfile,
   changePassword,
-  refreshToken
+  refreshToken,
+  googleLogin,
+  googleCallback
 };

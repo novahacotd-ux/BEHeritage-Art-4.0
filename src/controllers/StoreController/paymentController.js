@@ -1,9 +1,33 @@
-const { Payment, Order, User } = require('../../models');
+const { Payment, Order, User, Product } = require('../../models');
 const { Op } = require('sequelize');
-
+const qs = require("qs");
+require("dotenv").config();
+const crypto = require("crypto");
 /**
  * Get all payments (Admin only)
  */
+
+function sortObject(obj) {
+	let sorted = {};
+	let str = [];
+	let key;
+
+	for (key in obj){
+		if (obj.hasOwnProperty(key)) {
+		    str.push(encodeURIComponent(key));
+		}
+	}
+
+	str.sort();
+
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] =
+            encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+    }
+
+    return sorted;
+}
+
 const getAllPayments = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, user_id, status, payment_method } = req.query;
@@ -57,6 +81,117 @@ const getAllPayments = async (req, res, next) => {
     }
 };
 
+
+const createVNPayPayment = async (req, res, next) => {
+    try {
+        const { order_id } = req.body;
+
+        const order = await Order.findByPk(order_id);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found"
+            });
+        }
+
+        const date = new Date();
+        const createDate =
+            date.getFullYear().toString() +
+            ("0" + (date.getMonth() + 1)).slice(-2) +
+            ("0" + date.getDate()).slice(-2) +
+            ("0" + date.getHours()).slice(-2) +
+            ("0" + date.getMinutes()).slice(-2) +
+            ("0" + date.getSeconds()).slice(-2);
+
+        const ipAddr = "127.0.0.1";
+
+        const tmnCode = process.env.VNP_TMNCODE;
+        const secretKey = process.env.VNP_HASHSECRET;
+        const vnpUrl = process.env.VNP_URL;
+        const returnUrl = process.env.VNP_RETURNURL;
+
+        let vnp_Params = {};
+
+        vnp_Params["vnp_Version"] = "2.1.0";
+        vnp_Params["vnp_Command"] = "pay";
+        vnp_Params["vnp_TmnCode"] = tmnCode;
+        vnp_Params["vnp_Amount"] = Number(order.total_price)*100;
+        vnp_Params["vnp_CreateDate"] = createDate;
+        vnp_Params["vnp_CurrCode"] = "VND";
+        vnp_Params["vnp_IpAddr"] = ipAddr;
+        vnp_Params["vnp_Locale"] = "vn";
+        vnp_Params["vnp_OrderInfo"] = 'ThanhtoanchomaGD:'+ order_id;
+        vnp_Params["vnp_OrderType"] = "other";
+        vnp_Params["vnp_ReturnUrl"] = returnUrl;
+        vnp_Params["vnp_TxnRef"] = order_id;
+
+        vnp_Params = sortObject(vnp_Params)
+
+
+        const signData = qs.stringify(vnp_Params, { encode: false });
+
+        const hmac = crypto.createHmac("sha512", secretKey);
+        const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
+
+        vnp_Params["vnp_SecureHash"] = signed;
+
+        const paymentUrl = vnpUrl + "?" + qs.stringify(vnp_Params, { encode: false });
+
+        res.json({
+            success: true,
+            paymentUrl
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+const vnpayReturn = async (req, res, next) => {
+    try {
+        let vnp_Params = req.query;
+
+        const secureHash = vnp_Params["vnp_SecureHash"];
+        delete vnp_Params["vnp_SecureHash"];
+        delete vnp_Params["vnp_SecureHashType"];
+
+        vnp_Params = sortObject(vnp_Params)
+
+        const secretKey = process.env.VNP_HASHSECRET;
+
+        const signData = qs.stringify(vnp_Params, { encode: false });
+
+        const crypto = require("crypto");
+
+        const hmac = crypto.createHmac("sha512", secretKey);
+        const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
+
+        if (secureHash === signed) {
+            const orderId = vnp_Params["vnp_TxnRef"];
+            const responseCode = vnp_Params["vnp_ResponseCode"];
+
+            if (responseCode === "00") {
+                await Payment.update(
+                    { status: "Success" },
+                    { where: { order_id: orderId } }
+                );
+            } else {
+                await Payment.update(
+                    { status: "Failed" },
+                    { where: { order_id: orderId } }
+                );
+            }
+
+            res.json({
+                success: true,
+                code: vnp_Params["vnp_ResponseCode"]
+                });
+        } else {
+            res.status(400).json({ message: "Invalid signature" });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
 /**
  * Get current user's payments
  */
@@ -135,7 +270,7 @@ const getPaymentById = async (req, res, next) => {
 const createPayment = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const { order_id, payment_method, amount } = req.body;
+        const { order_id, method, amount } = req.body;
 
         // Verify order exists and belongs to user
         const order = await Order.findByPk(order_id);
@@ -175,7 +310,7 @@ const createPayment = async (req, res, next) => {
 
         const payment = await Payment.create({
             order_id,
-            payment_method,
+            method,
             amount,
             payment_date: new Date(),
             status: 'Pending'
@@ -239,5 +374,8 @@ module.exports = {
     getMyPayments,
     getPaymentById,
     createPayment,
-    updatePaymentStatus
+    updatePaymentStatus,
+    createVNPayPayment,
+    vnpayReturn
+
 };

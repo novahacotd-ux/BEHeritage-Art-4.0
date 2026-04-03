@@ -16,7 +16,18 @@ const HistoricalPeriod = sequelize.define('HistoricalPeriod', {
   },
   end_year: {
     type: DataTypes.INTEGER
+  },
+  description: {
+    type: DataTypes.TEXT
+  },
+  thumbnail_url: {
+    type: DataTypes.STRING
+  },
+  created_at: {
+    type: DataTypes.DATE
   }
+
+  
 }, {
   tableName: 'historical_periods',
   timestamps: false

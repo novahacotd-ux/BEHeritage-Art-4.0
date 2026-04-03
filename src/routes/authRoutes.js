@@ -19,4 +19,8 @@ router.put('/profile', authenticate, authController.updateProfile);
 
 router.put('/change-password', authenticate, authController.changePassword);
 
+router.get('/google', authController.googleLogin);
+router.get('/google/callback', authController.googleCallback);
+
+
 module.exports = router;

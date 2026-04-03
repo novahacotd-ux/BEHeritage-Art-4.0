@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../../config/db");
 
-const ForumLike = sequelize.define(
-  "ForumLike",
+const forumReactions = sequelize.define(
+  "forumReactions",
   {
     id: {
       type: DataTypes.UUID,
@@ -12,6 +12,10 @@ const ForumLike = sequelize.define(
     user_id: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+          model: "users",
+          key: "id",
+        },
     },
     target_id: {
       type: DataTypes.UUID,
@@ -21,15 +25,23 @@ const ForumLike = sequelize.define(
       type: DataTypes.ENUM("POST", "COMMENT"),
       allowNull: false,
     },
+    reaction_type: {
+      type: DataTypes.ENUM("LIKE", "DISLIKE"),
+      allowNull: false,
+    },
     created_date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
   },
   {
-    tableName: "forum_likes",
+    tableName: "forum_reactions",
     timestamps: false,
+    indexes: [{
+      unique: true,
+      fields: ["user_id", "target_id", "target_type"]
+    }]
   }
 );
 
-module.exports = ForumLike;
+module.exports = forumReactions;

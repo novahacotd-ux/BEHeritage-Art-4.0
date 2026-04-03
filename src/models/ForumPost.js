@@ -14,26 +14,37 @@ const ForumPost = sequelize.define(
       allowNull: false,
     },
     content: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [1, 255],
       },
     },
     likes: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    tag: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
+    dislikes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    category_id:{
+      type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'forum_category',
+            key: 'category_id'
+        },
+    },
+    title:{
+      type: DataTypes.STRING,
+      allowNull: true
     },
     status: {
       type: DataTypes.STRING(20),
-      defaultValue: "Active",
+      defaultValue: "Pending",
       validate: {
-        isIn: [["Active", "Deleted", "Hidden"]],
+        isIn: [["Pending","Active", "Deleted", "Hidden"]],
       },
     },
     created_date: {

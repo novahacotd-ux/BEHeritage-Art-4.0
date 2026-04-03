@@ -10,7 +10,9 @@ const ForumPost = require("./ForumPost");
 const ForumPostImage = require("./ForumPostImage");
 const ForumPostVideo = require("./ForumPostVideo");
 const ForumPostComment = require("./ForumPostComment");
-const ForumLike = require("./ForumLike");
+const ForumCategory=require('./ForumCategory')
+const ForumTag=require('./ForumTag')
+const ForumReactions = require("./ForumLike");
 const Category = require("./Category");
 const Topic = require("./Topic");
 const Style = require("./Style");
@@ -21,6 +23,7 @@ const CartItem = require("./CartItem");
 const Order = require("./Order");
 const OrderDetail = require("./OrderDetail");
 const Payment = require("./Payment");
+const Tags= require('./Tags')
 
 // --- IMPORT MODELS ---
 // 1. Auth Module
@@ -36,6 +39,10 @@ const Region = require("./Region");
 const HistoricalPeriod = require("./HistoricalPeriod");
 const HistoricalSite = require("./HistoricalSite");
 const SiteImage = require("./SiteImage");
+//-------------------------------------//
+const Celebrities= require("./Celebrities")
+const HistoricalEvents= require('./HistoricalEvent')
+const HistoryEventImages=require('./HistoryEventImages')
 
 // 3. AI Tools Module (MỚI)
 const AICategory = require("./AICategory");
@@ -175,7 +182,6 @@ Review.belongsTo(User, {
   as: "user",
 }); // alias 'user' để hiện tên người comment
 
-
 // News and NewsImage associations
 News.hasMany(NewsImage, {
   foreignKey: "news_id",
@@ -237,6 +243,29 @@ EventRegister.belongsTo(User, {
 User.hasMany(ForumPost, { foreignKey: "created_by", as: "posts" });
 ForumPost.belongsTo(User, { foreignKey: "created_by", as: "author" });
 
+// MANY TO MANY
+ForumPost.belongsToMany(Tags, {
+  through: ForumTag,
+  foreignKey: 'post_id',
+  otherKey: 'tag_id',
+  as: 'tags'
+});
+
+Tags.belongsToMany(ForumPost, {
+  through: ForumTag,
+  foreignKey: 'tag_id',
+  otherKey: 'post_id',
+  as: 'posts'
+});
+
+//Forum-ForumTag(1-N)
+ForumPost.hasMany(ForumTag, {foreignKey: 'post_id', as: 'forum_tags'})
+ForumTag.belongsTo(ForumPost, {foreignKey: 'post_id', as: 'post'})
+
+//Tag-ForumTag(1-N)
+Tags.hasMany(ForumTag, {foreignKey: 'tag_id', as: 'forum_tags'})
+ForumTag.belongsTo(Tags, {foreignKey: 'tag_id', as: 'tag'})
+
 // ForumPost - ForumPostImage (1-N)
 ForumPost.hasMany(ForumPostImage, { foreignKey: "post_id", as: "images" });
 ForumPostImage.belongsTo(ForumPost, { foreignKey: "post_id", as: "post" });
@@ -264,12 +293,22 @@ ForumPostComment.belongsTo(ForumPostComment, {
 });
 
 // Likes
-User.hasMany(ForumLike, { foreignKey: "user_id", as: "likes" });
-ForumLike.belongsTo(User, { foreignKey: "user_id", as: "user" });
+User.hasMany(ForumReactions, { foreignKey: "user_id", as: "likes" });
+ForumReactions.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
 // Category and Product associations
 Category.hasMany(Product, {
   foreignKey: "category_id",
   as: "products",
+});
+
+ForumPost.hasMany(ForumReactions, {
+  foreignKey: "target_id",
+  as: "like"
+});
+
+ForumReactions.belongsTo(ForumPost, {
+  foreignKey: "target_id"
 });
 
 Product.belongsTo(Category, {
@@ -413,8 +452,6 @@ Location.hasMany(LocationInteraction, {
   as: "interactions",
 });
 
-
-
 LocationInteraction.belongsTo(Location, {
   foreignKey: "location_id",
   as: "location",
@@ -451,6 +488,24 @@ ExperiencePost.belongsTo(User, {
   as: "author",
 });
 
+HistoricalPeriod.hasMany(ExperiencePost, {
+  foreignKey: "period_id",
+  as: "experiencePosts",
+});
+ExperiencePost.belongsTo(HistoricalPeriod, {
+  foreignKey: "period_id",
+  as: "period",
+});
+
+Region.hasMany(ExperiencePost, {
+  foreignKey: "region_id",
+  as: "experiencePosts",
+});
+ExperiencePost.belongsTo(Region, {
+  foreignKey: "region_id",
+  as: "region",
+});
+
 ExperiencePost.hasMany(ExperienceComment, {
   foreignKey: "post_id",
   as: "comments",
@@ -479,6 +534,43 @@ ExperienceComment.belongsTo(ExperienceComment, {
   as: "parent",
 });
 
+HistoricalPeriod.hasMany(Celebrities, {
+    foreignKey: 'period_id',
+    as: 'celebrities'
+})
+Celebrities.belongsTo(HistoricalPeriod, {
+   foreignKey: 'period_id',
+    as: 'period'
+});
+
+HistoricalPeriod.hasMany(HistoricalEvents, {
+    foreignKey: 'period_id',
+    as: 'historical_event'
+})
+HistoricalEvents.belongsTo(HistoricalPeriod, {
+   foreignKey: 'period_id',
+    as: 'period'
+})
+
+HistoricalEvents.hasMany(HistoryEventImages, {
+  foreignKey: 'event_id',
+  as:'history_event_images'
+})
+HistoryEventImages.belongsTo(HistoricalEvents, {
+  foreignKey: 'event_id',
+  as:'historical_event'
+})
+
+ForumCategory.hasMany(ForumPost, {
+  foreignKey: 'category_id',
+  as: 'posts'
+});
+
+ForumPost.belongsTo(ForumCategory, {
+  foreignKey: 'category_id',
+  as: 'post_category'
+});
+
 
 // Export models and sequelize instance
 module.exports = {
@@ -492,6 +584,9 @@ module.exports = {
   Region,
   HistoricalPeriod,
   HistoricalSite,
+  Celebrities,//
+  HistoricalEvents,//
+  HistoryEventImages,
   SiteImage,
   AICategory,
   AITool,
@@ -507,7 +602,7 @@ module.exports = {
   ForumPostImage,
   ForumPostVideo,
   ForumPostComment,
-  ForumLike,
+  ForumReactions,
   Category,
   Topic,
   Style,
@@ -524,4 +619,7 @@ module.exports = {
   LocationInteraction,
   ExperiencePost,        
   ExperienceComment, 
+  ForumCategory, 
+  Tags,
+  ForumTag
 };
